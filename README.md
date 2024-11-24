@@ -5,3 +5,9 @@
 ```bash
 git config core.hooksPath .githooks
 ```
+
+### main.py 실행
+
+```bash
+python -m app.main
+```
