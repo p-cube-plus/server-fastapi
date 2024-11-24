@@ -14,9 +14,6 @@ build/
 # IDE 설정 파일
 .vscode/
 
-# Poetry 관련 파일
-poetry.lock
-
 # 설정 파일
 config/
 .env
