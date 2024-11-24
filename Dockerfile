@@ -16,4 +16,4 @@ RUN pip install poetry \
 COPY . .
 
 # FastAPI 서버 실행
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "app.main:app", "--worker-class", "uvicorn.workers.UvicornWorker", "--workers", "2"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app.main:app", "--worker-class", "uvicorn.workers.UvicornWorker", "--workers", "2"]
