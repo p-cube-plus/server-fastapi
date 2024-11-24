@@ -1,13 +1,33 @@
-## 개발 유의사항
+# 개발 유의사항
 
-### Git Hooks 경로 변경
+## 개요
+
+개발 관련 정보 작성 중...
+
+## Git Hooks 경로 변경
+
+아래 명령어 입력 후 커밋 시 자동으로 포매팅 수행됨.
 
 ```bash
 git config core.hooksPath .githooks
 ```
 
-### main.py 실행
+## 서버 실행 방법
+
+### main.py 직접 실행
 
 ```bash
 python -m app.main
+```
+
+### docker container 실행
+
+```bash
+sudo docker compose up -d
+```
+
+만약 수정 사항 반영 안 될 시 아래 명령어를 대신 실행
+
+```bash
+sudo docker compose up -d --build --no-cache
 ```
