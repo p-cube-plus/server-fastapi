@@ -1,0 +1,12 @@
+version: '2.17.2'
+
+services:
+  fastapi:
+    container_name: dev-app-p-cube-plus-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    volumes:
+      ./config:/src/config
