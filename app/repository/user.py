@@ -1,4 +1,4 @@
-from typing import Sequence
+from typing import Annotated
 
 from fastapi import Depends
 from sqlalchemy import select
@@ -12,9 +12,8 @@ from .base import BaseRepository
 
 
 class UserRepository(BaseRepository[UserEntity]):
-    def __init__(self, db: DatabaseSession = Depends(MySQLDatabase)):
-        super().__init__(db)
-        self._entity_type = UserEntity
+    def __init__(self, db: Annotated[DatabaseSession, Depends(MySQLDatabase)]):
+        self.db = db
 
     async def find_by_name(self, name: str) -> UserEntity | None:
         stmt = select(UserEntity).where(UserEntity.name == name)
