@@ -4,7 +4,6 @@ from fastapi import Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.database import get_db
 from app.database.base import DatabaseSession
 from app.database.mysql import MySQLDatabase
 from app.entity.user import UserEntity
