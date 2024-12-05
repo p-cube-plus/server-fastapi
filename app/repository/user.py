@@ -5,13 +5,15 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
+from app.database.base import DatabaseSession
+from app.database.mysql import MySQLDatabase
 from app.entity.user import UserEntity
 
 from .base import BaseRepository
 
 
 class UserRepository(BaseRepository[UserEntity]):
-    def __init__(self, db: AsyncSession = Depends(get_db)):
+    def __init__(self, db: DatabaseSession = Depends(MySQLDatabase)):
         super().__init__(db)
         self._entity_type = UserEntity
 
