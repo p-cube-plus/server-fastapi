@@ -19,11 +19,13 @@ class DatabaseURL(Protocol):
 class DatabaseConnection:
     def __init__(self, url_type: Type[DatabaseURL], settings: Dict[str, Any]):
         self.engine = create_async_engine(url_type(settings))
-        self.session_maker = async_sessionmaker(self.engine, expire_on_commit=False)
+        self.session_maker = async_sessionmaker(
+            self.engine, expire_on_commit=False, class_=DatabaseSession
+        )
 
 
 class DatabaseMeta(type):
-    async def __call__(cls: BaseDatabase) -> AsyncGenerator[AsyncSession, None]:
+    async def __call__(cls: BaseDatabase) -> AsyncGenerator[DatabaseSession, None]:
         session = cls._connection.session_maker()
         try:
             yield session
