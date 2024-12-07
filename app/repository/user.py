@@ -8,10 +8,10 @@ from app.database.base import DatabaseSession
 from app.database.mysql import MySQLDatabase
 from app.entity.user import UserEntity
 
-from .base import BaseRepository
+from .base import CRUDRepository
 
 
-class UserRepository(BaseRepository[UserEntity]):
+class UserRepository(CRUDRepository[UserEntity]):
     def __init__(self, db: Annotated[DatabaseSession, Depends(MySQLDatabase)]):
         self.db = db
 

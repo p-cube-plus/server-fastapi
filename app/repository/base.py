@@ -8,13 +8,13 @@ from app.entity.base import BaseEntity
 Entity = TypeVar("Entity", bound=BaseEntity)
 
 
-class BaseRepository(Generic[Entity]):
+class CRUDRepository(Generic[Entity]):
     @classmethod
     def __new__(cls, *args, **kwargs):
         instance = super().__new__(cls)
 
         for base in cls.__orig_bases__:
-            if hasattr(base, "__origin__") and base.__origin__ is BaseRepository:
+            if hasattr(base, "__origin__") and base.__origin__ is CRUDRepository:
                 instance.__entity_type = get_args(base)[0]
                 break
 
