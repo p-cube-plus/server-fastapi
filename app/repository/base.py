@@ -1,4 +1,4 @@
-from typing import Generic, Sequence, TypeVar, get_args
+from typing import Generic, TypeVar, get_args
 
 from sqlalchemy import select
 
@@ -26,7 +26,7 @@ class CRUDRepository(Generic[Entity]):
 
         return instance
 
-    async def find_all(self) -> Sequence[Entity]:
+    async def find_all(self) -> list[Entity]:
         stmt = select(self.__entity_type)
         result = await self.__session.execute(stmt)
         return result.scalars().all()
