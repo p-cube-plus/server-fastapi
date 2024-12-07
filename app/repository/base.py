@@ -9,7 +9,6 @@ Entity = TypeVar("Entity", bound=BaseEntity)
 
 
 class CRUDRepository(Generic[Entity]):
-    @classmethod
     def __new__(cls, *args, **kwargs):
         instance = super().__new__(cls)
 
