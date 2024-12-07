@@ -1,7 +1,4 @@
-from typing import Generic, Sequence, Type, TypeVar
-
-from fastapi import Depends, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
+from typing import Generic, TypeVar
 
 from app.entity.base import BaseEntity
 from app.repository.base import CRUDRepository
@@ -11,5 +8,4 @@ Repository = TypeVar("Repository", bound=CRUDRepository[Entity])
 
 
 class BaseService(Generic[Entity, Repository]):
-    def __init__(self, repository: Repository):
-        self.repository = repository
+    pass
