@@ -20,6 +20,7 @@ black = "^24.4.2"
 flake8 = "^7.0.0"
 isort = "^5.13.2"
 pre-commit = "^4.0.1"
+pytest = "^8.3.4"
 
 [tool.black]
 line-length = 88
@@ -51,3 +52,8 @@ ensure_newline_before_comments = true
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v"
