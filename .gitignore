@@ -17,3 +17,6 @@ build/
 # 설정 파일
 config/
 .env
+
+# 임시 테스트용 코드
+scratch/
