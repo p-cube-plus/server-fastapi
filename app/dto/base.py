@@ -12,3 +12,6 @@ class DTOMeta(type(BaseModel)):
 
 class BaseDTO(BaseModel, metaclass=DTOMeta):
     model_config = ConfigDict(from_attributes=True, frozen=False, extra="allow")
+
+    def dict(self, *args, **kwargs):
+        return self.model_dump(*args, exclude_unset=True, **kwargs)
