@@ -22,7 +22,7 @@ async def test_convert_entity_to_dto():
         for c in inspect(user_entity).mapper.column_attrs
     }
 
-    dto_dict = user_dto.model_dump()
+    dto_dict = user_dto.dict()
 
     common_keys = set(entity_dict.keys()) & set(dto_dict.keys())
     for key in common_keys:
@@ -43,7 +43,7 @@ async def test_convert_dto_to_entity():
         for c in inspect(user_entity).mapper.column_attrs
     }
 
-    dto_dict = user_dto.model_dump()
+    dto_dict = user_dto.dict()
 
     common_keys = set(entity_dict.keys()) & set(dto_dict.keys())
     for key in common_keys:
