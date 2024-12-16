@@ -1,11 +1,10 @@
 from pydantic import BaseModel, ConfigDict
-
-from app.entity.base import BaseEntity
+from sqlalchemy.orm import DeclarativeBase
 
 
 class DTOMeta(type(BaseModel)):
     def __call__(cls, *args, **kwargs):
-        if len(args) == 1 and isinstance(args[0], BaseEntity):
+        if len(args) == 1 and isinstance(args[0], DeclarativeBase):
             instance = cls.model_validate(args[0])
             return instance
         return super().__call__(*args, **kwargs)
