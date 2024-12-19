@@ -15,9 +15,6 @@ from .base import CRUDRepository
 class UserRepository(
     CRUDRepository[UserEntity, UserCreate, UserRead, UserUpdate, UserDelete]
 ):
-    def __init__(self, db: Annotated[DatabaseSession, Depends(MySQLDatabase)]):
-        self.db = db
-
     async def get_by_name(self, name: str) -> UserRead | None:
         stmt = select(UserEntity).where(UserEntity.name == name)
-        return await self.db.execute(stmt)
+        return await self.session.execute(stmt)

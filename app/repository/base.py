@@ -1,7 +1,9 @@
 import inspect
+from dataclasses import dataclass
 from functools import wraps
 from types import NoneType, UnionType
 from typing import (
+    Annotated,
     Any,
     Callable,
     Collection,
@@ -13,9 +15,11 @@ from typing import (
     get_type_hints,
 )
 
+from fastapi import Depends
 from sqlalchemy import Result, Row, delete, insert, select, update
 
 from app.database.base import DatabaseSession
+from app.database.mysql import MySQLDatabase
 from app.dto.base import BaseDTO
 from app.dto.user import UserRead
 from app.entity.base import BaseEntity
@@ -127,64 +131,67 @@ class RepositoryMeta(ResultConverterMeta):
     pass
 
 
+@dataclass
 class BaseRepository(metaclass=RepositoryMeta):
-    pass
+    session: Annotated[DatabaseSession, Depends(MySQLDatabase)]
 
 
-class CRUDRepository(
-    BaseRepository, Generic[Entity, CreateDTO, ReadDTO, UpdateDTO, DeleteDTO]
-):
-    def __new__(cls, *args, **kwargs):
-        instance = super().__new__(cls)
+class CRUDRepositoryMeta(RepositoryMeta):
+    def __new__(mcs, name, bases, attrs, **kwargs):
+        cls = super().__new__(mcs, name, bases, attrs, **kwargs)
 
         for base in cls.__orig_bases__:
-            if hasattr(base, "__origin__") and base.__origin__ is CRUDRepository:
+            if (
+                hasattr(base, "__origin__")
+                and base.__origin__.__name__ == "CRUDRepository"
+            ):
                 entity_type = get_args(base)[0]
                 if isinstance(entity_type, TypeVar):
                     raise TypeError(
                         "CRUDRepository requires concrete entity type, not TypeVar"
                     )
-                instance.__entity_type = entity_type
+                cls._entity_type = entity_type
                 break
 
-        for arg in (*args, *kwargs.values()):
-            if issubclass(type(arg), DatabaseSession):
-                instance.__session = arg
-                break
-        else:
-            raise ValueError("DatabaseSession instance must be provided")
+        return cls
 
-        return instance
+
+@dataclass
+class CRUDRepository(
+    BaseRepository,
+    Generic[Entity, CreateDTO, ReadDTO, UpdateDTO, DeleteDTO],
+    metaclass=CRUDRepositoryMeta,
+):
 
     async def get_all(self) -> list[ReadDTO]:
-        stmt = select(*self.__entity_type.columns()).select_from(self.__entity_type)
-        return await self.__session.execute(stmt)
+        stmt = select(*self._entity_type.columns()).select_from(self._entity_type)
+        return await self.session.execute(stmt)
 
     async def get_by_id(self, id: int) -> ReadDTO | None:
-        stmt = select(*self.__entity_type.columns()).where(self.__entity_type.id == id)
-        return await self.__session.execute(stmt)
+        stmt = select(*self._entity_type.columns()).where(self._entity_type.id == id)
+        return await self.session.execute(stmt)
 
     async def create(self, create_dto: CreateDTO) -> ReadDTO:
         stmt = (
-            insert(self.__entity_type)
+            insert(self._entity_type)
             .values(create_dto.dict())
-            .returning(*self.__entity_type.columns())
+            .returning(*self._entity_type.columns())
         )
-        return await self.__session.execute(stmt)
+        return await self.session.execute(stmt)
 
     async def update(self, update_dto: UpdateDTO) -> ReadDTO:
         stmt = (
-            update(self.__entity_type)
-            .where(self.__entity_type.id == update_dto.id)
+            update(self._entity_type)
+            .where(self._entity_type.id == update_dto.id)
             .values(update_dto.dict(exclude={"id"}))
-            .returning(*self.__entity_type.columns())
+            .returning(*self._entity_type.columns())
         )
-        return await self.__session.execute(stmt)
+        return await self.session.execute(stmt)
 
     async def delete(self, delete_dto: DeleteDTO) -> ReadDTO:
         stmt = (
-            delete(self.__entity_type)
-            .where(self.__entity_type.id == delete_dto.id)
-            .returning(*self.__entity_type.columns())
+            delete(self._entity_type)
+            .where(self._entity_type.id == delete_dto.id)
+            .returning(*self._entity_type.columns())
         )
-        return await self.__session.execute(stmt)
+        return await self.session.execute(stmt)
