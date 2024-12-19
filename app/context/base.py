@@ -9,7 +9,7 @@ from app.repository.base import BaseRepository
 
 
 class ContextMeta(type):
-    def __new__(mcs, name, bases, attrs):
+    def __new__(mcs, name, bases, attrs, **kwargs):
         annotations = attrs.get("__annotations__", {})
 
         repo_fields = {
@@ -33,7 +33,7 @@ class ContextMeta(type):
 
         attrs["__post_init__"] = __post_init__
 
-        return super().__new__(mcs, name, bases, attrs)
+        return super().__new__(mcs, name, bases, attrs, **kwargs)
 
 
 @dataclass
