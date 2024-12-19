@@ -11,8 +11,7 @@ from app.repository.base import BaseRepository
 class ContextMeta(type):
     def __new__(mcs, name, bases, attrs):
         annotations = attrs.get("__annotations__", {})
-        print(f"attrs = {attrs}")
-        print(annotations)
+
         repo_fields = {
             field_name: field_type
             for field_name, field_type in annotations.items()
