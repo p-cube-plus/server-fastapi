@@ -11,4 +11,6 @@ class EntityMeta(type(DeclarativeBase)):
 
 
 class BaseEntity(DeclarativeBase, metaclass=EntityMeta):
-    pass
+    @classmethod
+    def columns(cls):
+        return cls.__table__.columns

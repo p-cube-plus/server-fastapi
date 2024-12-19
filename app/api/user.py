@@ -11,5 +11,5 @@ router = APIRouter(
 
 @router.get("", response_model=list[UserRead])
 async def get_user_list(service: UserService = Depends()):
-    user_list = await service.find_all()
+    user_list = await service.get_all()
     return user_list
