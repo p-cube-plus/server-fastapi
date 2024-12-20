@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 
-from app.context.base import BaseContext
+from app.context.base import CRUDContext
 from app.repository.user import UserRepository
 
 
 @dataclass
-class UserContext(BaseContext):
-    users: UserRepository = None
+class UserContext(CRUDContext):
+    repo: UserRepository = None
