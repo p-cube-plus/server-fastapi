@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -10,6 +12,6 @@ router = APIRouter(
 
 
 @router.get("", response_model=list[UserRead])
-async def get_user_list(service: UserService = Depends()):
+async def get_user_list(service: Annotated[UserService, Depends()]):
     user_list = await service.get_all()
     return user_list
