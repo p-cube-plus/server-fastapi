@@ -1,15 +1,22 @@
+from dataclasses import dataclass
 from typing import Annotated
 
 from fastapi import Depends, HTTPException
 
+from app.context.user import UserContext
 from app.dto.user import UserCreate, UserDelete, UserRead, UserUpdate
 from app.repository.user import UserRepository
-from app.service.base import CRUDService
+from app.service.base import BaseService, CRUDService
 
 
-class UserService(CRUDService[UserCreate, UserRead, UserUpdate, UserDelete]):
-    def __init__(self, repo: Annotated[UserRepository, Depends()]):
-        self.repo = repo
+@dataclass
+class UserService(BaseService):
+    crud: Annotated[UserContext, Depends()]
+
+    async def get_all(self) -> list[UserRead]:
+        with self.crud as crud:
+            return await crud.repo.get_all()
 
     async def get_by_name(self, name: str) -> UserRead:
-        return await self.repo.get_by_name(name)
+        with self.crud as crud:
+            return await crud.repo.get_by_name(name)
