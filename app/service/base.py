@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from inspect import Parameter, signature
 from typing import (
     Annotated,
@@ -9,8 +10,11 @@ from typing import (
     get_type_hints,
 )
 
+from fastapi import Depends
 from sqlalchemy import cast
 
+from app.context.base import CRUDContext
+from app.context.user import UserContext
 from app.dto.base import BaseDTO
 from app.entity.base import BaseEntity
 from app.repository.base import CRUDRepository
@@ -21,39 +25,37 @@ UpdateDTO = TypeVar("UpdateDTO", bound=BaseDTO)
 DeleteDTO = TypeVar("DeleteDTO", bound=BaseDTO)
 
 
+@dataclass
 class BaseService:
     pass
 
 
-class CRUDService(BaseService, Generic[CreateDTO, ReadDTO, UpdateDTO, DeleteDTO]):
-
-    def __new__(cls, *args, **kwargs):
-        instance = super().__new__(cls)
-
-        for arg in (*args, *kwargs.values()):
-            if issubclass(type(arg), CRUDRepository):
-                instance.__repo = arg
-                break
-        else:
-            raise ValueError("CRUDRepository instance must be provided")
-
-        return instance
-
-    @property
-    def __repository(self) -> CRUDRepository:
-        return self.__repo
+@dataclass
+class CRUDService(BaseService):
+    crud: Annotated[CRUDContext, Depends()]
 
     async def get_all(self) -> list[ReadDTO]:
-        return await self.__repository.get_all()
+        with self.crud as crud:
+            return await crud.repo.get_all()
 
     async def get_by_id(self, id: int) -> ReadDTO | None:
-        return await self.__repository.get_by_id(id)
+        with self.crud as crud:
+            return await crud.repo.get_by_id(id)
 
     async def create(self, create_dto: CreateDTO) -> ReadDTO:
-        return await self.__repository.create(create_dto)
+        with self.crud as crud:
+            result = await crud.repo.create(create_dto)
+            crud.commit()
+            return result
 
     async def update(self, update_dto: UpdateDTO) -> ReadDTO:
-        return await self.__repository.create(update_dto)
+        with self.crud as crud:
+            result = await crud.repo.update(update_dto)
+            crud.commit()
+            return result
 
     async def delete(self, delete_dto: DeleteDTO) -> ReadDTO:
-        return await self.__repository.delete(delete_dto)
+        with self.crud as crud:
+            result = await crud.repo.delete(delete_dto)
+            crud.commit()
+            return result
