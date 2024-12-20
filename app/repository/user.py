@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Annotated
 
 from fastapi import Depends
@@ -12,6 +13,7 @@ from app.entity.user import UserEntity
 from .base import CRUDRepository
 
 
+@dataclass
 class UserRepository(
     CRUDRepository[UserEntity, UserCreate, UserRead, UserUpdate, UserDelete]
 ):
