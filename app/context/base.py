@@ -1,14 +1,25 @@
 from dataclasses import dataclass, field
+from inspect import Parameter, Signature
 from typing import Annotated
 
 from fastapi import Depends
 
 from app.database.base import DatabaseSession
 from app.database.mysql import MySQLDatabase
-from app.repository.base import BaseRepository
+from app.repository.base import BaseRepository, CRUDRepository
 
 
 class ContextMeta(type):
+    __signature__ = Signature(
+        [
+            Parameter(
+                "session",
+                Parameter.POSITIONAL_OR_KEYWORD,
+                annotation=Annotated[DatabaseSession, Depends(MySQLDatabase)],
+            )
+        ]
+    )
+
     def __new__(mcs, name, bases, attrs, **kwargs):
         annotations = attrs.get("__annotations__", {})
 
@@ -51,3 +62,8 @@ class BaseContext(metaclass=ContextMeta):
 
     def rollback(self):
         self.session.rollback()
+
+
+@dataclass
+class CRUDContext(BaseContext):
+    repo: CRUDRepository = None
