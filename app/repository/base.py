@@ -133,7 +133,7 @@ class RepositoryMeta(ResultConverterMeta):
 
 @dataclass
 class BaseRepository(metaclass=RepositoryMeta):
-    session: Annotated[DatabaseSession, Depends(MySQLDatabase)]
+    session: Annotated[DatabaseSession, Depends()]
 
 
 class CRUDRepositoryMeta(RepositoryMeta):

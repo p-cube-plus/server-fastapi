@@ -15,7 +15,7 @@ class ContextMeta(type):
             Parameter(
                 "session",
                 Parameter.POSITIONAL_OR_KEYWORD,
-                annotation=Annotated[DatabaseSession, Depends(MySQLDatabase)],
+                annotation=Annotated[DatabaseSession, Depends()],
             )
         ]
     )
@@ -49,7 +49,7 @@ class ContextMeta(type):
 
 @dataclass
 class BaseContext(metaclass=ContextMeta):
-    session: Annotated[DatabaseSession, Depends(MySQLDatabase)]
+    session: Annotated[DatabaseSession, Depends()]
 
     def __enter__(self):
         return self
