@@ -1,13 +1,33 @@
 from __future__ import annotations
 
-from typing import Any, AsyncGenerator, ClassVar, Dict, Protocol, Type
+from inspect import Parameter, Signature
+from typing import Any, AsyncGenerator, ClassVar, Dict, Protocol, Type, TypeVar
 
 from sqlalchemy.engine.url import URL
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 
-class DatabaseSession(AsyncSession):
-    pass
+class DatabaseSessionMeta(type(AsyncSession)):
+    __signature__ = Signature([])
+
+    async def __call__(
+        cls, *args, database_class: Type[BaseDatabase] = None, **kwargs
+    ) -> AsyncGenerator[DatabaseSession, None]:
+        if "bind" in kwargs:
+            yield super().__call__(*args, **kwargs)
+            return
+        if database_class is None:
+            from app.database.mysql import MySQLDatabase
+
+            database_class = MySQLDatabase
+        async for session in database_class():
+            yield session
+
+
+class DatabaseSession(AsyncSession, metaclass=DatabaseSessionMeta):
+
+    def __init__(self, *args, database_class: Type[BaseDatabase] = None, **kwargs):
+        super().__init__(*args, **kwargs)
 
 
 class DatabaseURL(Protocol):
@@ -26,7 +46,7 @@ class DatabaseConnection:
 
 class DatabaseMeta(type):
     async def __call__(cls: BaseDatabase) -> AsyncGenerator[DatabaseSession, None]:
-        session = cls._connection.session_maker()
+        session = await anext(cls._connection.session_maker())
         try:
             yield session
         finally:
