@@ -18,7 +18,7 @@ class MySQLURL:
 
 
 class SQLiteURL:
-    DRIVER: ClassVar[str] = "sqlite"
+    DRIVER: ClassVar[str] = "sqlite+aiosqlite"
 
     def __new__(cls, settings: Dict[str, Any]) -> URL:
         return str(
