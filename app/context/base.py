@@ -51,17 +51,17 @@ class ContextMeta(type):
 class BaseContext(metaclass=ContextMeta):
     session: Annotated[DatabaseSession, Depends()]
 
-    def __enter__(self):
+    async def __aenter__(self):
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.rollback()
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        await self.rollback()
 
-    def commit(self):
-        self.session.commit()
+    async def commit(self):
+        await self.session.commit()
 
-    def rollback(self):
-        self.session.rollback()
+    async def rollback(self):
+        await self.session.rollback()
 
 
 @dataclass
