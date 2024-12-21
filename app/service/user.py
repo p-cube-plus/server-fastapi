@@ -10,12 +10,8 @@ from app.service.base import BaseService, CRUDService
 
 
 @dataclass
-class UserService(BaseService):
+class UserService(CRUDService):
     crud: Annotated[UserContext, Depends()]
-
-    async def get_all(self) -> list[UserRead]:
-        async with self.crud as crud:
-            return await crud.repo.get_all()
 
     async def get_by_name(self, name: str) -> UserRead:
         async with self.crud as crud:
