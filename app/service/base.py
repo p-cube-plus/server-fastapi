@@ -35,27 +35,27 @@ class CRUDService(BaseService):
     crud: Annotated[CRUDContext, Depends()]
 
     async def get_all(self) -> list[ReadDTO]:
-        with self.crud as crud:
+        async with self.crud as crud:
             return await crud.repo.get_all()
 
     async def get_by_id(self, id: int) -> ReadDTO | None:
-        with self.crud as crud:
+        async with self.crud as crud:
             return await crud.repo.get_by_id(id)
 
     async def create(self, create_dto: CreateDTO) -> ReadDTO:
-        with self.crud as crud:
+        async with self.crud as crud:
             result = await crud.repo.create(create_dto)
-            crud.commit()
+            await crud.commit()
             return result
 
     async def update(self, update_dto: UpdateDTO) -> ReadDTO:
-        with self.crud as crud:
+        async with self.crud as crud:
             result = await crud.repo.update(update_dto)
-            crud.commit()
+            await crud.commit()
             return result
 
     async def delete(self, delete_dto: DeleteDTO) -> ReadDTO:
-        with self.crud as crud:
+        async with self.crud as crud:
             result = await crud.repo.delete(delete_dto)
-            crud.commit()
+            await crud.commit()
             return result

@@ -14,9 +14,9 @@ class UserService(BaseService):
     crud: Annotated[UserContext, Depends()]
 
     async def get_all(self) -> list[UserRead]:
-        with self.crud as crud:
+        async with self.crud as crud:
             return await crud.repo.get_all()
 
     async def get_by_name(self, name: str) -> UserRead:
-        with self.crud as crud:
+        async with self.crud as crud:
             return await crud.repo.get_by_name(name)
