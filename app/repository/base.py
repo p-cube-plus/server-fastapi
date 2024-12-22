@@ -26,10 +26,10 @@ from app.entity.base import BaseEntity
 from app.utils.type_utils import resolve_type_hint
 
 Entity = TypeVar("Entity", bound=BaseEntity)
+ID = TypeVar("ID", bound=Union[int, str])
 CreateDTO = TypeVar("CreateDTO", bound=BaseDTO)
 ReadDTO = TypeVar("ReadDTO", bound=BaseDTO)
 UpdateDTO = TypeVar("UpdateDTO", bound=BaseDTO)
-DeleteDTO = TypeVar("DeleteDTO", bound=BaseDTO)
 
 
 class ResultConverterMeta(type):
@@ -159,7 +159,7 @@ class CRUDRepositoryMeta(RepositoryMeta):
 @dataclass
 class CRUDRepository(
     BaseRepository,
-    Generic[Entity, CreateDTO, ReadDTO, UpdateDTO, DeleteDTO],
+    Generic[Entity, ID, CreateDTO, ReadDTO, UpdateDTO],
     metaclass=CRUDRepositoryMeta,
 ):
 
@@ -167,7 +167,7 @@ class CRUDRepository(
         stmt = select(*self._entity_type.columns()).select_from(self._entity_type)
         return await self.session.execute(stmt)
 
-    async def get_by_id(self, id: int) -> ReadDTO | None:
+    async def get(self, id: ID) -> ReadDTO | None:
         stmt = select(*self._entity_type.columns()).where(self._entity_type.id == id)
         return await self.session.execute(stmt)
 
@@ -184,29 +184,25 @@ class CRUDRepository(
 
         return await self.session.execute(stmt)
 
-    async def update(self, update_dto: UpdateDTO) -> ReadDTO:
+    async def update(self, id: ID, update_dto: UpdateDTO) -> ReadDTO:
         stmt = (
             update(self._entity_type)
-            .where(self._entity_type.id == update_dto.id)
-            .values(update_dto.dict(exclude={"id"}))
+            .where(self._entity_type.id == id)
+            .values(update_dto.dict())
         )
 
         await self.session.execute(stmt)
 
-        stmt = select(*self._entity_type.columns()).where(
-            self._entity_type.id == update_dto.id
-        )
+        stmt = select(*self._entity_type.columns()).where(self._entity_type.id == id)
 
         return await self.session.execute(stmt)
 
-    async def delete(self, delete_dto: DeleteDTO) -> ReadDTO:
-        stmt = select(*self._entity_type.columns()).where(
-            self._entity_type.id == delete_dto.id
-        )
+    async def delete(self, id: ID) -> ReadDTO:
+        stmt = select(*self._entity_type.columns()).where(self._entity_type.id == id)
 
         result = await self.session.execute(stmt)
 
-        stmt = delete(self._entity_type).where(self._entity_type.id == delete_dto.id)
+        stmt = delete(self._entity_type).where(self._entity_type.id == id)
 
         await self.session.execute(stmt)
 

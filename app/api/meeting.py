@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 
-from app.dto.meeting import MeetingCreate, MeetingDelete, MeetingRead, MeetingUpdate
+from app.dto.meeting import MeetingCreate, MeetingRead, MeetingUpdate
 from app.service.meeting import MeetingService
 
 router = APIRouter(
@@ -16,11 +16,9 @@ async def get_meeting_list(service: Annotated[MeetingService, Depends()]):
     return meeting_list
 
 
-@router.get("/{meeting_id}", response_model=MeetingRead)
-async def get_meeting_by_id(
-    meeting_id: str, service: Annotated[MeetingService, Depends()]
-):
-    meeting = await service.get_by_id(meeting_id)
+@router.get("/{id}", response_model=MeetingRead)
+async def get_meeting_by_id(id: str, service: Annotated[MeetingService, Depends()]):
+    meeting = await service.get(id)
     return meeting
 
 
@@ -32,17 +30,15 @@ async def create_meeting(
     return new_meeting
 
 
-@router.put("", response_model=MeetingRead)
+@router.put("/{id}", response_model=MeetingRead)
 async def update_meeting(
-    meeting: MeetingUpdate, service: Annotated[MeetingService, Depends()]
+    id: int, meeting: MeetingUpdate, service: Annotated[MeetingService, Depends()]
 ):
-    updated_meeting = await service.update(meeting)
+    updated_meeting = await service.update(id, meeting)
     return updated_meeting
 
 
-@router.delete("", response_model=MeetingRead)
-async def delete_meeting(
-    meeting: MeetingDelete, service: Annotated[MeetingService, Depends()]
-):
-    deleted_meeting = await service.delete(meeting)
+@router.delete("/{id}", response_model=MeetingRead)
+async def delete_meeting(id: int, service: Annotated[MeetingService, Depends()]):
+    deleted_meeting = await service.delete(id)
     return deleted_meeting

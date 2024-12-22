@@ -47,7 +47,3 @@ class UserCreate(UserBase, UserID):
 
 class UserUpdate(Partial(UserBase), UserID):
     pass
-
-
-class UserDelete(UserID):
-    pass

@@ -1,14 +1,8 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.dto.attendance import (
-    AttendanceCreate,
-    AttendanceDelete,
-    AttendanceRead,
-    AttendanceUpdate,
-)
+from app.dto.attendance import AttendanceCreate, AttendanceRead, AttendanceUpdate
 from app.service.attendance import AttendanceService
 
 router = APIRouter(
@@ -22,11 +16,11 @@ async def get_attendance_list(service: Annotated[AttendanceService, Depends()]):
     return attendance_list
 
 
-@router.get("/{attendance_id}", response_model=AttendanceRead)
+@router.get("/{id}", response_model=AttendanceRead)
 async def get_attendance_by_id(
-    attendance_id: str, service: Annotated[AttendanceService, Depends()]
+    id: int, service: Annotated[AttendanceService, Depends()]
 ):
-    attendance = await service.get_by_id(attendance_id)
+    attendance = await service.get(id)
     return attendance
 
 
@@ -38,17 +32,17 @@ async def create_attendance(
     return new_attendance
 
 
-@router.put("", response_model=AttendanceRead)
+@router.put("/{id}", response_model=AttendanceRead)
 async def update_attendance(
-    attendance: AttendanceUpdate, service: Annotated[AttendanceService, Depends()]
+    id: int,
+    attendance: AttendanceUpdate,
+    service: Annotated[AttendanceService, Depends()],
 ):
-    updated_attendance = await service.update(attendance)
+    updated_attendance = await service.update(id, attendance)
     return updated_attendance
 
 
-@router.delete("", response_model=AttendanceRead)
-async def delete_attendance(
-    attendance: AttendanceDelete, service: Annotated[AttendanceService, Depends()]
-):
-    deleted_attendance = await service.delete(attendance)
+@router.delete("/{id}", response_model=AttendanceRead)
+async def delete_attendance(id: int, service: Annotated[AttendanceService, Depends()]):
+    deleted_attendance = await service.delete(id)
     return deleted_attendance

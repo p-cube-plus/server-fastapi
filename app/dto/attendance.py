@@ -25,7 +25,3 @@ class AttendanceRead(AttendanceBase, AttendanceID):
 
 class AttendanceUpdate(Partial(AttendanceBase), AttendanceID):
     pass
-
-
-class AttendanceDelete(AttendanceID):
-    pass

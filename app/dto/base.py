@@ -21,11 +21,19 @@ class BaseDTO(BaseModel, metaclass=DTOMeta):
 
 DTO = TypeVar("DTO", bound=BaseDTO)
 
+_partial_cache: dict[type, type] = {}
+
 
 def Partial(cls: type[DTO]) -> type[DTO]:
+    if cls in _partial_cache:
+        return _partial_cache[cls]
+
     fields = {
         field_name: (Optional[field_type.annotation], None)
         for field_name, field_type in cls.model_fields.items()
     }
 
-    return create_model(f"Partial{cls.__name__}", **fields)
+    partial_cls = create_model(f"Partial{cls.__name__}", **fields)
+    _partial_cache[cls] = partial_cls
+
+    return partial_cls

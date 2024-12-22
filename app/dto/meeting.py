@@ -25,7 +25,3 @@ class MeetingRead(MeetingBase, MeetingID):
 
 class MeetingUpdate(Partial(MeetingBase), MeetingID):
     pass
-
-
-class MeetingDelete(MeetingID):
-    pass

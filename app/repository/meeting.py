@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from app.dto.meeting import MeetingCreate, MeetingDelete, MeetingRead, MeetingUpdate
+from app.dto.meeting import MeetingCreate, MeetingID, MeetingRead, MeetingUpdate
 from app.entity.meeting import MeetingEntity
 
 from .base import CRUDRepository
@@ -10,10 +10,10 @@ from .base import CRUDRepository
 class MeetingRepository(
     CRUDRepository[
         MeetingEntity,
+        int,
         MeetingCreate,
         MeetingRead,
         MeetingUpdate,
-        MeetingDelete,
     ]
 ):
     pass
