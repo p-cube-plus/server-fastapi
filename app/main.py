@@ -3,7 +3,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.middleware.cors import CORSMiddleware
 
-from app.api import user
+from app.api import attendance, user
 
 app = FastAPI(docs_url="/", redoc_url=None)
 
@@ -18,7 +18,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(user.router)
+app.include_router(user.router, tags=["user"])
+app.include_router(attendance.router, tags=["attendance"])
 
 if __name__ == "__main__":
     import uvicorn
