@@ -172,11 +172,16 @@ class CRUDRepository(
         return await self.session.execute(stmt)
 
     async def create(self, create_dto: CreateDTO) -> ReadDTO:
+        stmt = insert(self._entity_type).values(create_dto.dict())
+
+        result = await self.session.execute(stmt)
+
         stmt = (
-            insert(self._entity_type)
-            .values(create_dto.dict())
-            .returning(*self._entity_type.columns())
+            select(*self._entity_type.columns())
+            .select_from(self._entity_type)
+            .where(self._entity_type.id == result.lastrowid)
         )
+
         return await self.session.execute(stmt)
 
     async def update(self, update_dto: UpdateDTO) -> ReadDTO:
@@ -184,14 +189,25 @@ class CRUDRepository(
             update(self._entity_type)
             .where(self._entity_type.id == update_dto.id)
             .values(update_dto.dict(exclude={"id"}))
-            .returning(*self._entity_type.columns())
         )
+
+        await self.session.execute(stmt)
+
+        stmt = select(*self._entity_type.columns()).where(
+            self._entity_type.id == update_dto.id
+        )
+
         return await self.session.execute(stmt)
 
     async def delete(self, delete_dto: DeleteDTO) -> ReadDTO:
-        stmt = (
-            delete(self._entity_type)
-            .where(self._entity_type.id == delete_dto.id)
-            .returning(*self._entity_type.columns())
+        stmt = select(*self._entity_type.columns()).where(
+            self._entity_type.id == delete_dto.id
         )
-        return await self.session.execute(stmt)
+
+        result = await self.session.execute(stmt)
+
+        stmt = delete(self._entity_type).where(self._entity_type.id == delete_dto.id)
+
+        await self.session.execute(stmt)
+
+        return result
