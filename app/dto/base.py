@@ -1,10 +1,7 @@
 from dataclasses import dataclass
 from typing import Generic, Optional, TypeVar
 
-from fastapi import Query
-from jinja2 import Undefined
 from pydantic import BaseModel, ConfigDict, create_model
-from pydantic.fields import Field
 from sqlalchemy.orm import DeclarativeBase
 
 
