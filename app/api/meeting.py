@@ -6,7 +6,7 @@ from app.dto.meeting import MeetingPayload, MeetingRequest, MeetingResponse
 from app.service.meeting import MeetingService
 
 router = APIRouter(
-    prefix="/meeting",
+    prefix="/meetings",
 )
 
 

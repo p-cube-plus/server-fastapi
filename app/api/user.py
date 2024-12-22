@@ -6,7 +6,7 @@ from app.dto.user import UserPayload, UserRequest, UserResponse
 from app.service.user import UserService
 
 router = APIRouter(
-    prefix="/user",
+    prefix="/users",
 )
 
 

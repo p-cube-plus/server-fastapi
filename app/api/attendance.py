@@ -6,7 +6,7 @@ from app.dto.attendance import AttendancePayload, AttendanceRequest, AttendanceR
 from app.service.attendance import AttendanceService
 
 router = APIRouter(
-    prefix="/attendance",
+    prefix="/attendances",
 )
 
 
