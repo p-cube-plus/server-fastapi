@@ -15,13 +15,13 @@ class AttendanceBase(BaseDTO):
     second_auth_end_time: time = None
 
 
-class AttendanceCreate(AttendanceBase):
+class AttendanceRequest(AttendanceBase):
     pass
 
 
-class AttendanceRead(AttendanceBase, AttendanceID):
+class AttendanceResponse(AttendanceBase, AttendanceID):
     pass
 
 
-class AttendanceUpdate(Partial(AttendanceBase), AttendanceID):
+class AttendancePayload(Partial(AttendanceBase)):
     pass

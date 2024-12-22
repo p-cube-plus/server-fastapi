@@ -1,9 +1,8 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, Depends, Request
 
-from app.dto.user import UserCreate, UserRead, UserUpdate
+from app.dto.user import UserPayload, UserRequest, UserResponse
 from app.service.user import UserService
 
 router = APIRouter(
@@ -11,33 +10,35 @@ router = APIRouter(
 )
 
 
-@router.get("", response_model=list[UserRead])
-async def get_user_list(service: Annotated[UserService, Depends()]):
-    user_list = await service.get_all()
+@router.get("", response_model=list[UserResponse])
+async def get_user_list(request: Request, service: Annotated[UserService, Depends()]):
+    user_list = await service.get_all(UserPayload(**request.query_params))
     return user_list
 
 
-@router.get("/{id}", response_model=UserRead)
+@router.get("/{id}", response_model=UserResponse)
 async def get_user_by_id(id: str, service: Annotated[UserService, Depends()]):
     user = await service.get(id)
     return user
 
 
-@router.post("", response_model=UserRead)
-async def create_user(user: UserCreate, service: Annotated[UserService, Depends()]):
-    new_user = await service.create(user)
+@router.post("", response_model=UserResponse)
+async def create_user(
+    user_request: UserRequest, service: Annotated[UserService, Depends()]
+):
+    new_user = await service.create(user_request)
     return new_user
 
 
-@router.put("/{id}", response_model=UserRead)
+@router.put("/{id}", response_model=UserResponse)
 async def update_user(
-    id: str, user: UserUpdate, service: Annotated[UserService, Depends()]
+    id: str, user_payload: UserPayload, service: Annotated[UserService, Depends()]
 ):
-    updated_user = await service.update(id, user)
+    updated_user = await service.update(id, user_payload)
     return updated_user
 
 
-@router.delete("/{id}", response_model=UserRead)
+@router.delete("/{id}", response_model=UserResponse)
 async def delete_user(id: str, service: Annotated[UserService, Depends()]):
     deleted_user = await service.delete(id)
     return deleted_user

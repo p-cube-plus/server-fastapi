@@ -37,13 +37,13 @@ class UserBase(BaseDTO):
     api_access_level: int = 0
 
 
-class UserRead(UserBase, UserID):
+class UserRequest(UserBase, UserID):
     pass
 
 
-class UserCreate(UserBase, UserID):
+class UserResponse(UserBase, UserID):
     pass
 
 
-class UserUpdate(Partial(UserBase), UserID):
+class UserPayload(Partial(UserBase)):
     pass

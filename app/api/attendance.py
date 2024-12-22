@@ -1,8 +1,8 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 
-from app.dto.attendance import AttendanceCreate, AttendanceRead, AttendanceUpdate
+from app.dto.attendance import AttendancePayload, AttendanceRequest, AttendanceResponse
 from app.service.attendance import AttendanceService
 
 router = APIRouter(
@@ -10,13 +10,15 @@ router = APIRouter(
 )
 
 
-@router.get("", response_model=list[AttendanceRead])
-async def get_attendance_list(service: Annotated[AttendanceService, Depends()]):
-    attendance_list = await service.get_all()
+@router.get("", response_model=list[AttendanceResponse])
+async def get_attendance_list(
+    request: Request, service: Annotated[AttendanceService, Depends()]
+):
+    attendance_list = await service.get_all(AttendancePayload(**request.query_params))
     return attendance_list
 
 
-@router.get("/{id}", response_model=AttendanceRead)
+@router.get("/{id}", response_model=AttendanceResponse)
 async def get_attendance_by_id(
     id: int, service: Annotated[AttendanceService, Depends()]
 ):
@@ -24,25 +26,25 @@ async def get_attendance_by_id(
     return attendance
 
 
-@router.post("", response_model=AttendanceRead)
+@router.post("", response_model=AttendanceResponse)
 async def create_attendance(
-    attendance: AttendanceCreate, service: Annotated[AttendanceService, Depends()]
+    attendance: AttendanceRequest, service: Annotated[AttendanceService, Depends()]
 ):
     new_attendance = await service.create(attendance)
     return new_attendance
 
 
-@router.put("/{id}", response_model=AttendanceRead)
+@router.put("/{id}", response_model=AttendanceResponse)
 async def update_attendance(
     id: int,
-    attendance: AttendanceUpdate,
+    attendance: AttendancePayload,
     service: Annotated[AttendanceService, Depends()],
 ):
     updated_attendance = await service.update(id, attendance)
     return updated_attendance
 
 
-@router.delete("/{id}", response_model=AttendanceRead)
+@router.delete("/{id}", response_model=AttendanceResponse)
 async def delete_attendance(id: int, service: Annotated[AttendanceService, Depends()]):
     deleted_attendance = await service.delete(id)
     return deleted_attendance

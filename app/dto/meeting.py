@@ -15,13 +15,13 @@ class MeetingBase(BaseDTO):
     time: time
 
 
-class MeetingCreate(MeetingBase):
+class MeetingRequest(MeetingBase):
     pass
 
 
-class MeetingRead(MeetingBase, MeetingID):
+class MeetingResponse(MeetingBase, MeetingID):
     pass
 
 
-class MeetingUpdate(Partial(MeetingBase), MeetingID):
+class MeetingPayload(Partial(MeetingBase)):
     pass

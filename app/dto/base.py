@@ -1,6 +1,10 @@
+from dataclasses import dataclass
 from typing import Generic, Optional, TypeVar
 
+from fastapi import Query
+from jinja2 import Undefined
 from pydantic import BaseModel, ConfigDict, create_model
+from pydantic.fields import Field
 from sqlalchemy.orm import DeclarativeBase
 
 
@@ -15,8 +19,8 @@ class DTOMeta(type(BaseModel)):
 class BaseDTO(BaseModel, metaclass=DTOMeta):
     model_config = ConfigDict(from_attributes=True, frozen=False)
 
-    def dict(self, *args, **kwargs):
-        return self.model_dump(*args, exclude_unset=True, **kwargs)
+    def dict(self, *args, exclude_unset=True, **kwargs):
+        return self.model_dump(*args, exclude_unset=exclude_unset, **kwargs)
 
 
 DTO = TypeVar("DTO", bound=BaseDTO)
@@ -33,7 +37,7 @@ def Partial(cls: type[DTO]) -> type[DTO]:
         for field_name, field_type in cls.model_fields.items()
     }
 
-    partial_cls = create_model(f"Partial{cls.__name__}", **fields)
+    partial_cls = create_model(f"Partial{cls.__name__}", __base__=cls, **fields)
     _partial_cache[cls] = partial_cls
 
     return partial_cls

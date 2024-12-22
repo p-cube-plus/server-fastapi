@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 
 from app.dto.attendance import (
-    AttendanceCreate,
     AttendanceID,
-    AttendanceRead,
-    AttendanceUpdate,
+    AttendancePayload,
+    AttendanceRequest,
+    AttendanceResponse,
 )
 from app.entity.attendance import AttendanceEntity
 
@@ -16,9 +16,9 @@ class AttendanceRepository(
     CRUDRepository[
         AttendanceEntity,
         int,
-        AttendanceCreate,
-        AttendanceRead,
-        AttendanceUpdate,
+        AttendanceRequest,
+        AttendanceResponse,
+        AttendancePayload,
     ]
 ):
     pass

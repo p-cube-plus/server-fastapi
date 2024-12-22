@@ -4,7 +4,7 @@ import pytest
 from sqlalchemy import inspect
 
 from app.database.mysql import MySQLDatabase
-from app.dto.user import UserRead
+from app.dto.user import UserResponse
 from app.entity.user import UserEntity
 from app.repository.user import UserRepository
 

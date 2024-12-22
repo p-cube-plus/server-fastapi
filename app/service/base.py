@@ -8,9 +8,9 @@ from app.dto.base import BaseDTO
 from app.entity.base import BaseEntity
 
 ID = TypeVar("ID", bound=Union[int, str])
-CreateDTO = TypeVar("CreateDTO", bound=BaseDTO)
-ReadDTO = TypeVar("ReadDTO", bound=BaseDTO)
-UpdateDTO = TypeVar("UpdateDTO", bound=BaseDTO)
+RequestDTO = TypeVar("RequestDTO", bound=BaseDTO)
+ResponseDTO = TypeVar("ResponseDTO", bound=BaseDTO)
+PayloadDTO = TypeVar("PayloadDTO", bound=BaseDTO)
 
 
 @dataclass
@@ -19,30 +19,30 @@ class BaseService:
 
 
 @dataclass
-class CRUDService(BaseService, Generic[ID, CreateDTO, ReadDTO, UpdateDTO]):
+class CRUDService(BaseService, Generic[ID, RequestDTO, ResponseDTO, PayloadDTO]):
     crud: Annotated[CRUDContext, Depends()]
 
-    async def get_all(self) -> list[ReadDTO]:
+    async def get_all(self, payload_dto: PayloadDTO) -> list[ResponseDTO]:
         async with self.crud as crud:
-            return await crud.repo.get_all()
+            return await crud.repo.get_all(payload_dto)
 
-    async def get(self, id: ID) -> ReadDTO | None:
+    async def get(self, id: ID) -> ResponseDTO | None:
         async with self.crud as crud:
             return await crud.repo.get(id)
 
-    async def create(self, create_dto: CreateDTO) -> ReadDTO:
+    async def create(self, request_dto: RequestDTO) -> ResponseDTO:
         async with self.crud as crud:
-            result = await crud.repo.create(create_dto)
+            result = await crud.repo.create(request_dto)
             await crud.commit()
             return result
 
-    async def update(self, id: ID, update_dto: UpdateDTO) -> ReadDTO:
+    async def update(self, id: ID, payload_dto: PayloadDTO) -> ResponseDTO:
         async with self.crud as crud:
-            result = await crud.repo.update(id, update_dto)
+            result = await crud.repo.update(id, payload_dto)
             await crud.commit()
             return result
 
-    async def delete(self, id: ID) -> ReadDTO:
+    async def delete(self, id: ID) -> ResponseDTO:
         async with self.crud as crud:
             result = await crud.repo.delete(id)
             await crud.commit()

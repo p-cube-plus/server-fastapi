@@ -21,15 +21,15 @@ from sqlalchemy import Result, Row, delete, insert, select, update
 from app.database.base import DatabaseSession
 from app.database.mysql import MySQLDatabase
 from app.dto.base import BaseDTO
-from app.dto.user import UserRead
+from app.dto.user import UserResponse
 from app.entity.base import BaseEntity
 from app.utils.type_utils import resolve_type_hint
 
 Entity = TypeVar("Entity", bound=BaseEntity)
 ID = TypeVar("ID", bound=Union[int, str])
-CreateDTO = TypeVar("CreateDTO", bound=BaseDTO)
-ReadDTO = TypeVar("ReadDTO", bound=BaseDTO)
-UpdateDTO = TypeVar("UpdateDTO", bound=BaseDTO)
+RequestDTO = TypeVar("RequestDTO", bound=BaseDTO)
+ResponseDTO = TypeVar("ResponseDTO", bound=BaseDTO)
+PayloadDTO = TypeVar("PayloadDTO", bound=BaseDTO)
 
 
 class ResultConverterMeta(type):
@@ -159,20 +159,22 @@ class CRUDRepositoryMeta(RepositoryMeta):
 @dataclass
 class CRUDRepository(
     BaseRepository,
-    Generic[Entity, ID, CreateDTO, ReadDTO, UpdateDTO],
+    Generic[Entity, ID, RequestDTO, ResponseDTO, PayloadDTO],
     metaclass=CRUDRepositoryMeta,
 ):
 
-    async def get_all(self) -> list[ReadDTO]:
+    async def get_all(self, payload_dto: PayloadDTO) -> list[ResponseDTO]:
         stmt = select(*self._entity_type.columns()).select_from(self._entity_type)
+        if payload_dto:
+            stmt = stmt.filter_by(**payload_dto.dict())
         return await self.session.execute(stmt)
 
-    async def get(self, id: ID) -> ReadDTO | None:
+    async def get(self, id: ID) -> ResponseDTO | None:
         stmt = select(*self._entity_type.columns()).where(self._entity_type.id == id)
         return await self.session.execute(stmt)
 
-    async def create(self, create_dto: CreateDTO) -> ReadDTO:
-        stmt = insert(self._entity_type).values(create_dto.dict())
+    async def create(self, request_dto: RequestDTO) -> ResponseDTO:
+        stmt = insert(self._entity_type).values(request_dto.dict())
 
         result = await self.session.execute(stmt)
 
@@ -184,11 +186,11 @@ class CRUDRepository(
 
         return await self.session.execute(stmt)
 
-    async def update(self, id: ID, update_dto: UpdateDTO) -> ReadDTO:
+    async def update(self, id: ID, payload_dto: PayloadDTO) -> ResponseDTO:
         stmt = (
             update(self._entity_type)
             .where(self._entity_type.id == id)
-            .values(update_dto.dict())
+            .values(payload_dto.dict())
         )
 
         await self.session.execute(stmt)
@@ -197,7 +199,7 @@ class CRUDRepository(
 
         return await self.session.execute(stmt)
 
-    async def delete(self, id: ID) -> ReadDTO:
+    async def delete(self, id: ID) -> ResponseDTO:
         stmt = select(*self._entity_type.columns()).where(self._entity_type.id == id)
 
         result = await self.session.execute(stmt)
