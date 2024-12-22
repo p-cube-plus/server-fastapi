@@ -22,12 +22,26 @@ python -m app.main
 
 ### docker container 실행
 
+프로젝트 경로에서 아래 명령어 실행
+
 ```bash
 sudo docker compose up -d
+```
+
+컨테이너 종료
+
+```bash
+sudo docker compose down
+```
+
+컨테이너 재시작
+
+```bash
+sudo docker compose restart
 ```
 
 만약 수정 사항 반영 안 될 시 아래 명령어를 대신 실행
 
 ```bash
-sudo docker compose up -d --build --no-cache
+sudo docker compose up -d --build
 ```
