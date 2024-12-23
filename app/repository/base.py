@@ -26,7 +26,6 @@ from app.entity.base import BaseEntity
 from app.utils.type_utils import resolve_type_hint
 
 Entity = TypeVar("Entity", bound=BaseEntity)
-ID = TypeVar("ID", bound=Union[int, str])
 RequestDTO = TypeVar("RequestDTO", bound=BaseDTO)
 ResponseDTO = TypeVar("ResponseDTO", bound=BaseDTO)
 PayloadDTO = TypeVar("PayloadDTO", bound=BaseDTO)
@@ -159,7 +158,7 @@ class CRUDRepositoryMeta(RepositoryMeta):
 @dataclass
 class CRUDRepository(
     BaseRepository,
-    Generic[Entity, ID, RequestDTO, ResponseDTO, PayloadDTO],
+    Generic[Entity, RequestDTO, ResponseDTO, PayloadDTO],
     metaclass=CRUDRepositoryMeta,
 ):
 
@@ -169,7 +168,7 @@ class CRUDRepository(
             stmt = stmt.filter_by(**payload_dto.dict())
         return await self.session.execute(stmt)
 
-    async def get(self, id: ID) -> ResponseDTO | None:
+    async def get(self, id: int) -> ResponseDTO | None:
         stmt = select(*self._entity_type.columns()).where(self._entity_type.id == id)
         return await self.session.execute(stmt)
 
@@ -186,7 +185,7 @@ class CRUDRepository(
 
         return await self.session.execute(stmt)
 
-    async def update(self, id: ID, payload_dto: PayloadDTO) -> ResponseDTO:
+    async def update(self, id: int, payload_dto: PayloadDTO) -> ResponseDTO:
         stmt = (
             update(self._entity_type)
             .where(self._entity_type.id == id)
@@ -199,7 +198,7 @@ class CRUDRepository(
 
         return await self.session.execute(stmt)
 
-    async def delete(self, id: ID) -> ResponseDTO:
+    async def delete(self, id: int) -> ResponseDTO:
         stmt = select(*self._entity_type.columns()).where(self._entity_type.id == id)
 
         result = await self.session.execute(stmt)

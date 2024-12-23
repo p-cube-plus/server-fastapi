@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, Date, Integer, String
+from sqlalchemy import BigInteger, Boolean, Column, Date, Integer, String
 
 from .base import BaseEntity
 
@@ -6,7 +6,8 @@ from .base import BaseEntity
 class UserEntity(BaseEntity):
     __tablename__ = "user"
 
-    id = Column(String(64), primary_key=True, index=True)
+    id = Column(BigInteger, primary_key=True, index=True)
+    hash = Column(String(64), unique=True, nullable=False, index=True)
     is_signed = Column(Boolean, nullable=False, default=False)
     name = Column(String(60), nullable=False)
     level = Column(Integer, nullable=False)

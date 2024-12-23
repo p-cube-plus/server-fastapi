@@ -9,5 +9,5 @@ from app.service.base import CRUDService
 
 
 @dataclass
-class MeetingService(CRUDService[int, MeetingRequest, MeetingResponse, MeetingPayload]):
+class MeetingService(CRUDService[MeetingRequest, MeetingResponse, MeetingPayload]):
     crud: Annotated[MeetingContext, Depends()]

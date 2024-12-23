@@ -15,7 +15,6 @@ from .base import CRUDRepository
 class AttendanceRepository(
     CRUDRepository[
         AttendanceEntity,
-        int,
         AttendanceRequest,
         AttendanceResponse,
         AttendancePayload,

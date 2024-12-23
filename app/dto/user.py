@@ -5,10 +5,11 @@ from .base import BaseDTO, Partial
 
 
 class UserID(BaseDTO):
-    id: str
+    id: int
 
 
 class UserBase(BaseDTO):
+    hash: str
     is_signed: bool = False
     name: str
     level: int
@@ -37,7 +38,7 @@ class UserBase(BaseDTO):
     api_access_level: int = 0
 
 
-class UserRequest(UserBase, UserID):
+class UserRequest(UserBase):
     pass
 
 

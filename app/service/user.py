@@ -9,7 +9,7 @@ from app.service.base import CRUDService
 
 
 @dataclass
-class UserService(CRUDService[str, UserRequest, UserResponse, UserPayload]):
+class UserService(CRUDService[UserRequest, UserResponse, UserPayload]):
     crud: Annotated[UserContext, Depends()]
 
     async def get_by_name(self, name: str) -> UserResponse:

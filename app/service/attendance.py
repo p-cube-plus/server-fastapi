@@ -10,6 +10,6 @@ from app.service.base import CRUDService
 
 @dataclass
 class AttendanceService(
-    CRUDService[int, AttendanceRequest, AttendanceResponse, AttendancePayload]
+    CRUDService[AttendanceRequest, AttendanceResponse, AttendancePayload]
 ):
     crud: Annotated[AttendanceContext, Depends()]

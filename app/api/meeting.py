@@ -19,7 +19,7 @@ async def get_meeting_list(
 
 
 @router.get("/{id}", response_model=MeetingResponse)
-async def get_meeting_by_id(id: str, service: Annotated[MeetingService, Depends()]):
+async def get_meeting_by_id(id: int, service: Annotated[MeetingService, Depends()]):
     meeting = await service.get(id)
     return meeting
 

@@ -17,7 +17,7 @@ async def get_user_list(request: Request, service: Annotated[UserService, Depend
 
 
 @router.get("/{id}", response_model=UserResponse)
-async def get_user_by_id(id: str, service: Annotated[UserService, Depends()]):
+async def get_user_by_id(id: int, service: Annotated[UserService, Depends()]):
     user = await service.get(id)
     return user
 
@@ -32,13 +32,13 @@ async def create_user(
 
 @router.put("/{id}", response_model=UserResponse)
 async def update_user(
-    id: str, user_payload: UserPayload, service: Annotated[UserService, Depends()]
+    id: int, user_payload: UserPayload, service: Annotated[UserService, Depends()]
 ):
     updated_user = await service.update(id, user_payload)
     return updated_user
 
 
 @router.delete("/{id}", response_model=UserResponse)
-async def delete_user(id: str, service: Annotated[UserService, Depends()]):
+async def delete_user(id: int, service: Annotated[UserService, Depends()]):
     deleted_user = await service.delete(id)
     return deleted_user

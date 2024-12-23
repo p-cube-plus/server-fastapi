@@ -10,7 +10,6 @@ from .base import CRUDRepository
 class MeetingRepository(
     CRUDRepository[
         MeetingEntity,
-        int,
         MeetingRequest,
         MeetingResponse,
         MeetingPayload,
