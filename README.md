@@ -35,6 +35,11 @@ pyenv local 3.12
 ### poetry로 가상 환경 생성 및 패키지 설치
 
 ```bash
+# 가상 환경 생성 시 프로젝트 경로 내부에 생성 (.venv 디렉터리가 생성됨)
+# 필수 설정은 아니나, 간혹 IDE에서 가상 환경의 인터프리터를 찾지 못하는 경우가 있어
+# 아래 명령어를 실행하는 것을 추천
+poetry config virtualenvs.in-project true
+
 # pyenv로 python3.12를 설치한 경우
 poetry env use $(pyenv which python)
 # OS에 직접 설치한 경우
