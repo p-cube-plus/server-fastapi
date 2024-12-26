@@ -42,7 +42,7 @@ poetry config virtualenvs.in-project true
 
 # pyenv로 python3.12를 설치한 경우
 poetry env use $(pyenv which python)
-# OS에 직접 설치한 경우
+# OS에 직접 설치한 경우 (필요 시 괄호 안의 값을 알맞은 경로로 대체할 것것)
 poetry env use $(which python3.12)
 
 # 패키지 설치
