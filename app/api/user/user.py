@@ -35,6 +35,14 @@ async def create_user(
 
 
 @router.put("/{id}", response_model=UserResponse)
+async def replace_user(
+    id: int, user_request: UserRequest, service: Annotated[UserService, Depends()]
+):
+    replaced_user = await service.replace(id, user_request)
+    return replaced_user
+
+
+@router.patch("/{id}", response_model=UserResponse)
 async def update_user(
     id: int, user_payload: UserPayload, service: Annotated[UserService, Depends()]
 ):

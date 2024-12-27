@@ -37,6 +37,16 @@ async def create_attendance(
 
 
 @router.put("/{id}", response_model=AttendanceResponse)
+async def replace_attendance(
+    id: int,
+    attendance: AttendanceRequest,
+    service: Annotated[AttendanceService, Depends()],
+):
+    replaced_attendance = await service.replace(id, attendance)
+    return replaced_attendance
+
+
+@router.patch("/{id}", response_model=AttendanceResponse)
 async def update_attendance(
     id: int,
     attendance: AttendancePayload,

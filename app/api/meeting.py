@@ -35,6 +35,14 @@ async def create_meeting(
 
 
 @router.put("/{id}", response_model=MeetingResponse)
+async def replace_meeting(
+    id: int, meeting: MeetingRequest, service: Annotated[MeetingService, Depends()]
+):
+    replaced_meeting = await service.replace(id, meeting)
+    return replaced_meeting
+
+
+@router.patch("/{id}", response_model=MeetingResponse)
 async def update_meeting(
     id: int, meeting: MeetingPayload, service: Annotated[MeetingService, Depends()]
 ):
