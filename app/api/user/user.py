@@ -11,7 +11,11 @@ router = APIRouter(
 
 
 @router.get("", response_model=list[UserResponse])
-async def get_user_list(request: Request, service: Annotated[UserService, Depends()]):
+async def get_user_list(
+    request: Request,
+    user_payload: Annotated[UserPayload, Depends()],
+    service: Annotated[UserService, Depends()],
+):
     user_list = await service.get_all(UserPayload(**request.query_params))
     return user_list
 

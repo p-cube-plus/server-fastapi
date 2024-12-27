@@ -12,7 +12,9 @@ router = APIRouter(
 
 @router.get("", response_model=list[AttendanceResponse])
 async def get_attendance_list(
-    request: Request, service: Annotated[AttendanceService, Depends()]
+    request: Request,
+    attendance_payload: Annotated[AttendancePayload, Depends()],
+    service: Annotated[AttendanceService, Depends()],
 ):
     attendance_list = await service.get_all(AttendancePayload(**request.query_params))
     return attendance_list

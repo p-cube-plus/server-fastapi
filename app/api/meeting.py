@@ -12,7 +12,9 @@ router = APIRouter(
 
 @router.get("", response_model=list[MeetingResponse])
 async def get_meeting_list(
-    request: Request, service: Annotated[MeetingService, Depends()]
+    request: Request,
+    meeting_payload: Annotated[MeetingPayload, Depends()],
+    service: Annotated[MeetingService, Depends()],
 ):
     meeting_list = await service.get_all(MeetingPayload(**request.query_params))
     return meeting_list
