@@ -185,6 +185,21 @@ class CRUDRepository(
 
         return await self.session.execute(stmt)
 
+    async def replace(self, id: int, request_dto: RequestDTO) -> ResponseDTO:
+        stmt = (
+            update(self._entity_type)
+            .where(self._entity_type.id == id)
+            .values(request_dto.dict())
+        )
+
+        await self.session.execute(stmt)
+
+        print(stmt)
+
+        stmt = select(*self._entity_type.columns()).where(self._entity_type.id == id)
+
+        return await self.session.execute(stmt)
+
     async def update(self, id: int, payload_dto: PayloadDTO) -> ResponseDTO:
         stmt = (
             update(self._entity_type)

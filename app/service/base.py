@@ -35,6 +35,12 @@ class CRUDService(BaseService, Generic[RequestDTO, ResponseDTO, PayloadDTO]):
             await crud.commit()
             return result
 
+    async def replace(self, id: int, request_dto: RequestDTO) -> ResponseDTO:
+        async with self.crud as crud:
+            result = await crud.repo.replace(id, request_dto)
+            await crud.commit()
+            return result
+
     async def update(self, id: int, payload_dto: PayloadDTO) -> ResponseDTO:
         async with self.crud as crud:
             result = await crud.repo.update(id, payload_dto)
