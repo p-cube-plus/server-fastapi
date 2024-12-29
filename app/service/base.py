@@ -21,34 +21,30 @@ class BaseService:
 class CRUDService(BaseService, Generic[RequestDTO, ResponseDTO, PayloadDTO]):
     crud: Annotated[CRUDContext, Depends()]
 
-    async def get_all(self, payload_dto: PayloadDTO) -> list[ResponseDTO]:
+    async def get(self, **kwargs) -> list[ResponseDTO]:
         async with self.crud as crud:
-            return await crud.repo.get_all(payload_dto)
+            return await crud.repo.get(**kwargs)
 
-    async def get(self, id: int) -> ResponseDTO | None:
+    async def create(self, request_dto_list: list[RequestDTO]) -> list[ResponseDTO]:
         async with self.crud as crud:
-            return await crud.repo.get(id)
-
-    async def create(self, request_dto: RequestDTO) -> ResponseDTO:
-        async with self.crud as crud:
-            result = await crud.repo.create(request_dto)
+            result = await crud.repo.create(request_dto_list)
             await crud.commit()
             return result
 
-    async def replace(self, id: int, request_dto: RequestDTO) -> ResponseDTO:
+    async def replace(self, request_dto: RequestDTO, **kwargs) -> list[ResponseDTO]:
         async with self.crud as crud:
-            result = await crud.repo.replace(id, request_dto)
+            result = await crud.repo.replace(request_dto, **kwargs)
             await crud.commit()
             return result
 
-    async def update(self, id: int, payload_dto: PayloadDTO) -> ResponseDTO:
+    async def update(self, payload_dto: PayloadDTO, **kwargs) -> list[ResponseDTO]:
         async with self.crud as crud:
-            result = await crud.repo.update(id, payload_dto)
+            result = await crud.repo.update(payload_dto, **kwargs)
             await crud.commit()
             return result
 
-    async def delete(self, id: int) -> ResponseDTO:
+    async def delete(self, **kwargs) -> list[ResponseDTO]:
         async with self.crud as crud:
-            result = await crud.repo.delete(id)
+            result = await crud.repo.delete(**kwargs)
             await crud.commit()
             return result

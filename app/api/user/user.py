@@ -16,41 +16,41 @@ async def get_user_list(
     user_payload: Annotated[UserPayload, Depends()],
     service: Annotated[UserService, Depends()],
 ):
-    user_list = await service.get_all(UserPayload(**request.query_params))
+    user_list = await service.get(**request.query_params)
     return user_list
 
 
 @router.get("/{id}", response_model=UserResponse)
 async def get_user_by_id(id: int, service: Annotated[UserService, Depends()]):
-    user = await service.get(id)
-    return user
+    user = await service.get(id=id)
+    return user[0]
 
 
 @router.post("", response_model=UserResponse)
 async def create_user(
     user_request: UserRequest, service: Annotated[UserService, Depends()]
 ):
-    new_user = await service.create(user_request)
-    return new_user
+    new_user = await service.create([user_request])
+    return new_user[0]
 
 
 @router.put("/{id}", response_model=UserResponse)
 async def replace_user(
     id: int, user_request: UserRequest, service: Annotated[UserService, Depends()]
 ):
-    replaced_user = await service.replace(id, user_request)
-    return replaced_user
+    replaced_user = await service.replace(user_request, id=id)
+    return replaced_user[0]
 
 
 @router.patch("/{id}", response_model=UserResponse)
 async def update_user(
     id: int, user_payload: UserPayload, service: Annotated[UserService, Depends()]
 ):
-    updated_user = await service.update(id, user_payload)
-    return updated_user
+    updated_user = await service.update(user_payload, id=id)
+    return updated_user[0]
 
 
 @router.delete("/{id}", response_model=UserResponse)
 async def delete_user(id: int, service: Annotated[UserService, Depends()]):
-    deleted_user = await service.delete(id)
-    return deleted_user
+    deleted_user = await service.delete(id=id)
+    return deleted_user[0]

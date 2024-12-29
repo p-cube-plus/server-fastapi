@@ -20,8 +20,8 @@ router = APIRouter(
 async def get_user_attendance_list(
     user_id: int, service: Annotated[AttendanceMemberService, Depends()]
 ):
-    user_attendance = await service.get_all(AttendanceMemberPayload(user_id=user_id))
-    return user_attendance
+    user_attendance_list = await service.get(user_id=user_id)
+    return user_attendance_list
 
 
 @router.get("/{attendance_id}", response_model=AttendanceMemberResponse)
@@ -30,11 +30,7 @@ async def get_user_attendance_by_attendance_id(
     attendance_id: int,
     service: Annotated[AttendanceMemberService, Depends()],
 ):
-    user_attendance = await service.get_all(
-        AttendanceMemberPayload(user_id=user_id, attendance_id=attendance_id)
-    )
-    if not user_attendance:
-        return None
+    user_attendance = await service.get(user_id=user_id, attendance_id=attendance_id)
     return user_attendance[0]
 
 
@@ -45,6 +41,6 @@ async def create_user_attendance(
     service: Annotated[AttendanceMemberService, Depends()],
 ):
     new_user_attendance = await service.create(
-        AttendanceMemberRequest(user_id=user_id, **user_attendance_request.dict())
+        [AttendanceMemberRequest(user_id=user_id, **user_attendance_request.dict())]
     )
-    return new_user_attendance
+    return new_user_attendance[0]

@@ -162,63 +162,53 @@ class CRUDRepository(
     metaclass=CRUDRepositoryMeta,
 ):
 
-    async def get_all(self, payload_dto: PayloadDTO) -> list[ResponseDTO]:
-        stmt = select(*self._entity_type.columns()).select_from(self._entity_type)
-        if payload_dto:
-            stmt = stmt.filter_by(**payload_dto.dict())
+    async def get(self, **kwargs) -> list[ResponseDTO]:
+        stmt = (
+            select(*self._entity_type.columns())
+            .select_from(self._entity_type)
+            .filter_by(**kwargs)
+        )
         return await self.session.execute(stmt)
 
-    async def get(self, id: int) -> ResponseDTO | None:
-        stmt = select(*self._entity_type.columns()).where(self._entity_type.id == id)
-        return await self.session.execute(stmt)
-
-    async def create(self, request_dto: RequestDTO) -> ResponseDTO:
-        stmt = insert(self._entity_type).values(request_dto.dict())
+    async def create(self, request_dto_list: list[RequestDTO]) -> list[ResponseDTO]:
+        stmt = insert(self._entity_type).values(
+            [request_dto.dict() for request_dto in request_dto_list]
+        )
 
         result = await self.session.execute(stmt)
 
         stmt = (
             select(*self._entity_type.columns())
             .select_from(self._entity_type)
-            .where(self._entity_type.id == result.lastrowid)
+            .where(self._entity_type.id >= result.lastrowid)
         )
 
         return await self.session.execute(stmt)
 
-    async def replace(self, id: int, request_dto: RequestDTO) -> ResponseDTO:
-        stmt = (
-            update(self._entity_type)
-            .where(self._entity_type.id == id)
-            .values(request_dto.dict())
-        )
+    async def replace(self, request_dto: RequestDTO, **kwargs) -> list[ResponseDTO]:
+        stmt = update(self._entity_type).filter_by(**kwargs).values(request_dto.dict())
 
         await self.session.execute(stmt)
 
-        print(stmt)
-
-        stmt = select(*self._entity_type.columns()).where(self._entity_type.id == id)
+        stmt = select(*self._entity_type.columns()).filter_by(**kwargs)
 
         return await self.session.execute(stmt)
 
-    async def update(self, id: int, payload_dto: PayloadDTO) -> ResponseDTO:
-        stmt = (
-            update(self._entity_type)
-            .where(self._entity_type.id == id)
-            .values(payload_dto.dict())
-        )
+    async def update(self, payload_dto: PayloadDTO, **kwargs) -> list[ResponseDTO]:
+        stmt = update(self._entity_type).filter_by(**kwargs).values(payload_dto.dict())
 
         await self.session.execute(stmt)
 
-        stmt = select(*self._entity_type.columns()).where(self._entity_type.id == id)
+        stmt = select(*self._entity_type.columns()).filter_by(**kwargs)
 
         return await self.session.execute(stmt)
 
-    async def delete(self, id: int) -> ResponseDTO:
-        stmt = select(*self._entity_type.columns()).where(self._entity_type.id == id)
+    async def delete(self, **kwargs) -> list[ResponseDTO]:
+        stmt = select(*self._entity_type.columns()).filter_by(**kwargs)
 
         result = await self.session.execute(stmt)
 
-        stmt = delete(self._entity_type).where(self._entity_type.id == id)
+        stmt = delete(self._entity_type).filter_by(**kwargs)
 
         await self.session.execute(stmt)
 
