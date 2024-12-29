@@ -1,15 +1,12 @@
 from dataclasses import dataclass
-from typing import Annotated, Generic, TypeVar, Union
+from typing import Annotated, Generic, TypeVar
 
 from fastapi import Depends
 
 from app.context.base import CRUDContext
 from app.dto.base import BaseDTO
-from app.entity.base import BaseEntity
 
-RequestDTO = TypeVar("RequestDTO", bound=BaseDTO)
-ResponseDTO = TypeVar("ResponseDTO", bound=BaseDTO)
-PayloadDTO = TypeVar("PayloadDTO", bound=BaseDTO)
+DTO = TypeVar("DTO", bound=BaseDTO)
 
 
 @dataclass
@@ -18,33 +15,27 @@ class BaseService:
 
 
 @dataclass
-class CRUDService(BaseService, Generic[RequestDTO, ResponseDTO, PayloadDTO]):
+class CRUDService(BaseService, Generic[DTO]):
     crud: Annotated[CRUDContext, Depends()]
 
-    async def get(self, **kwargs) -> list[ResponseDTO]:
+    async def get(self, **filters) -> list[DTO]:
         async with self.crud as crud:
-            return await crud.repo.get(**kwargs)
+            return await crud.repo.get(**filters)
 
-    async def create(self, request_dto_list: list[RequestDTO]) -> list[ResponseDTO]:
+    async def create(self, dto_list: list[BaseDTO]) -> list[DTO]:
         async with self.crud as crud:
-            result = await crud.repo.create(request_dto_list)
+            result = await crud.repo.create(dto_list)
             await crud.commit()
             return result
 
-    async def replace(self, request_dto: RequestDTO, **kwargs) -> list[ResponseDTO]:
+    async def update(self, dto: BaseDTO, *, exclude_unset=True, **filters) -> list[DTO]:
         async with self.crud as crud:
-            result = await crud.repo.replace(request_dto, **kwargs)
+            result = await crud.repo.update(dto, exclude_unset=exclude_unset, **filters)
             await crud.commit()
             return result
 
-    async def update(self, payload_dto: PayloadDTO, **kwargs) -> list[ResponseDTO]:
+    async def delete(self, **filters) -> list[DTO]:
         async with self.crud as crud:
-            result = await crud.repo.update(payload_dto, **kwargs)
-            await crud.commit()
-            return result
-
-    async def delete(self, **kwargs) -> list[ResponseDTO]:
-        async with self.crud as crud:
-            result = await crud.repo.delete(**kwargs)
+            result = await crud.repo.delete(**filters)
             await crud.commit()
             return result

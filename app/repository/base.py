@@ -21,14 +21,11 @@ from sqlalchemy import Result, Row, delete, insert, select, update
 from app.database.base import DatabaseSession
 from app.database.mysql import MySQLDatabase
 from app.dto.base import BaseDTO
-from app.dto.user import UserResponse
 from app.entity.base import BaseEntity
 from app.utils.type_utils import resolve_type_hint
 
 Entity = TypeVar("Entity", bound=BaseEntity)
-RequestDTO = TypeVar("RequestDTO", bound=BaseDTO)
-ResponseDTO = TypeVar("ResponseDTO", bound=BaseDTO)
-PayloadDTO = TypeVar("PayloadDTO", bound=BaseDTO)
+DTO = TypeVar("DTO", bound=BaseDTO)
 
 
 class ResultConverterMeta(type):
@@ -158,22 +155,20 @@ class CRUDRepositoryMeta(RepositoryMeta):
 @dataclass
 class CRUDRepository(
     BaseRepository,
-    Generic[Entity, RequestDTO, ResponseDTO, PayloadDTO],
+    Generic[Entity, DTO],
     metaclass=CRUDRepositoryMeta,
 ):
 
-    async def get(self, **kwargs) -> list[ResponseDTO]:
+    async def get(self, **filters) -> list[DTO]:
         stmt = (
             select(*self._entity_type.columns())
             .select_from(self._entity_type)
-            .filter_by(**kwargs)
+            .filter_by(**filters)
         )
         return await self.session.execute(stmt)
 
-    async def create(self, request_dto_list: list[RequestDTO]) -> list[ResponseDTO]:
-        stmt = insert(self._entity_type).values(
-            [request_dto.dict() for request_dto in request_dto_list]
-        )
+    async def create(self, dto_list: list[BaseDTO]) -> list[DTO]:
+        stmt = insert(self._entity_type).values([dto.dict() for dto in dto_list])
 
         result = await self.session.execute(stmt)
 
@@ -185,30 +180,25 @@ class CRUDRepository(
 
         return await self.session.execute(stmt)
 
-    async def replace(self, request_dto: RequestDTO, **kwargs) -> list[ResponseDTO]:
-        stmt = update(self._entity_type).filter_by(**kwargs).values(request_dto.dict())
+    async def update(self, dto: BaseDTO, *, exclude_unset=True, **filters) -> list[DTO]:
+        stmt = (
+            update(self._entity_type)
+            .filter_by(**filters)
+            .values(dto.dict(exclude_unset=exclude_unset))
+        )
 
         await self.session.execute(stmt)
 
-        stmt = select(*self._entity_type.columns()).filter_by(**kwargs)
+        stmt = select(*self._entity_type.columns()).filter_by(**filters)
 
         return await self.session.execute(stmt)
 
-    async def update(self, payload_dto: PayloadDTO, **kwargs) -> list[ResponseDTO]:
-        stmt = update(self._entity_type).filter_by(**kwargs).values(payload_dto.dict())
-
-        await self.session.execute(stmt)
-
-        stmt = select(*self._entity_type.columns()).filter_by(**kwargs)
-
-        return await self.session.execute(stmt)
-
-    async def delete(self, **kwargs) -> list[ResponseDTO]:
-        stmt = select(*self._entity_type.columns()).filter_by(**kwargs)
+    async def delete(self, **filters) -> list[DTO]:
+        stmt = select(*self._entity_type.columns()).filter_by(**filters)
 
         result = await self.session.execute(stmt)
 
-        stmt = delete(self._entity_type).filter_by(**kwargs)
+        stmt = delete(self._entity_type).filter_by(**filters)
 
         await self.session.execute(stmt)
 

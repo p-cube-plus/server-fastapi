@@ -1,7 +1,7 @@
 from dataclasses import Field
 from datetime import date
 
-from .base import BaseDTO, Partial
+from .base import BaseDTO, Nullified, Partial
 
 
 class UserID(BaseDTO):
@@ -38,13 +38,25 @@ class UserBase(BaseDTO):
     api_access_level: int = 0
 
 
-class UserRequest(UserBase):
+class UserDTO(UserBase, UserID):
     pass
 
 
-class UserResponse(UserBase, UserID):
+class UserParam(Partial(UserBase)):
     pass
 
 
-class UserPayload(Partial(UserBase)):
+class UserPost(UserBase):
+    pass
+
+
+class UserPut(UserBase):
+    pass
+
+
+class UserPatch(Partial(UserBase)):
+    pass
+
+
+class UserParams(Nullified(UserBase)):
     pass

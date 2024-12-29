@@ -1,6 +1,6 @@
 from datetime import time
 
-from .base import BaseDTO, Partial
+from .base import BaseDTO, Nullified, Partial
 
 
 class AttendanceID(BaseDTO):
@@ -15,13 +15,21 @@ class AttendanceBase(BaseDTO):
     second_auth_end_time: time = None
 
 
-class AttendanceRequest(AttendanceBase):
+class AttendanceDTO(AttendanceBase, AttendanceID):
     pass
 
 
-class AttendanceResponse(AttendanceBase, AttendanceID):
+class AttendancePost(AttendanceBase):
     pass
 
 
-class AttendancePayload(Partial(AttendanceBase)):
+class AttendancePut(AttendanceBase):
+    pass
+
+
+class AttendancePatch(Partial(AttendanceBase)):
+    pass
+
+
+class AttendanceParams(Nullified(AttendanceBase)):
     pass

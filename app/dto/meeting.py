@@ -1,6 +1,6 @@
 from datetime import time
 
-from .base import BaseDTO, Partial
+from .base import BaseDTO, Nullified, Partial
 
 
 class MeetingID(BaseDTO):
@@ -15,13 +15,21 @@ class MeetingBase(BaseDTO):
     time: time
 
 
-class MeetingRequest(MeetingBase):
+class MeetingDTO(MeetingBase, MeetingID):
     pass
 
 
-class MeetingResponse(MeetingBase, MeetingID):
+class MeetigPost(MeetingBase):
     pass
 
 
-class MeetingPayload(Partial(MeetingBase)):
+class MeetingPut(MeetingBase, MeetingID):
+    pass
+
+
+class MeetingPatch(Partial(MeetingBase)):
+    pass
+
+
+class MeetingParams(Nullified(MeetingBase)):
     pass

@@ -2,12 +2,11 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 
-from app.dto.attendance import AttendanceResponse
 from app.dto.attendance_member import (
-    AttendanceMemberPayload,
-    AttendanceMemberRequest,
-    AttendanceMemberResponse,
-    UserAttendanceRequest,
+    AttendanceMemberBase,
+    AttendanceMemberDTO,
+    AttendanceMemberPost,
+    UserAttendancePost,
 )
 from app.service.attendance_member import AttendanceMemberService
 
@@ -16,7 +15,7 @@ router = APIRouter(
 )
 
 
-@router.get("", response_model=list[AttendanceMemberResponse])
+@router.get("", response_model=list[AttendanceMemberDTO])
 async def get_user_attendance_list(
     user_id: int, service: Annotated[AttendanceMemberService, Depends()]
 ):
@@ -24,7 +23,7 @@ async def get_user_attendance_list(
     return user_attendance_list
 
 
-@router.get("/{attendance_id}", response_model=AttendanceMemberResponse)
+@router.get("/{attendance_id}", response_model=AttendanceMemberDTO)
 async def get_user_attendance_by_attendance_id(
     user_id: int,
     attendance_id: int,
@@ -34,13 +33,13 @@ async def get_user_attendance_by_attendance_id(
     return user_attendance[0]
 
 
-@router.post("", response_model=AttendanceMemberResponse)
+@router.post("", response_model=AttendanceMemberDTO)
 async def create_user_attendance(
     user_id: int,
-    user_attendance_request: UserAttendanceRequest,
+    user_attendance_post: UserAttendancePost,
     service: Annotated[AttendanceMemberService, Depends()],
 ):
     new_user_attendance = await service.create(
-        [AttendanceMemberRequest(user_id=user_id, **user_attendance_request.dict())]
+        [AttendanceMemberPost(user_id=user_id, **user_attendance_post.dict())]
     )
     return new_user_attendance[0]

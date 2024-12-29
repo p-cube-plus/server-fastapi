@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from app.dto.meeting import MeetingID, MeetingPayload, MeetingRequest, MeetingResponse
+from app.dto.meeting import MeetingDTO
 from app.entity.meeting import MeetingEntity
 
 from .base import CRUDRepository
@@ -10,9 +10,7 @@ from .base import CRUDRepository
 class MeetingRepository(
     CRUDRepository[
         MeetingEntity,
-        MeetingRequest,
-        MeetingResponse,
-        MeetingPayload,
+        MeetingDTO,
     ]
 ):
     pass

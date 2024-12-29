@@ -1,7 +1,7 @@
 from datetime import time
 from typing import Optional
 
-from .base import BaseDTO, Partial
+from .base import BaseDTO, Nullified, Partial
 
 
 class AttendanceMemberID(BaseDTO):
@@ -22,23 +22,43 @@ class AttendanceMemberBase(BaseDTO):
     second_auth_time: time | None = None
 
 
-class UserAttendanceRequest(AttendanceMemberBase, AttendanceID):
-    pass
-
-
-class AttendanceUserRequest(AttendanceMemberBase, UserID):
-    pass
-
-
-class AttendanceMemberRequest(AttendanceMemberBase, UserID, AttendanceID):
-    pass
-
-
-class AttendanceMemberResponse(
+class AttendanceMemberDTO(
     AttendanceMemberBase, UserID, AttendanceID, AttendanceMemberID
 ):
     pass
 
 
-class AttendanceMemberPayload(Partial(AttendanceMemberBase)):
+class AttendanceMemberPost(AttendanceMemberBase, UserID, AttendanceID):
+    pass
+
+
+class UserAttendancePost(AttendanceMemberBase, AttendanceID):
+    pass
+
+
+class UserAttendancePut(AttendanceMemberBase):
+    pass
+
+
+class UserAttendancePatch(Partial(AttendanceMemberBase)):
+    pass
+
+
+class UserAttendanceParams(Nullified(AttendanceMemberBase)):
+    pass
+
+
+class AttendanceUserPost(AttendanceMemberBase, UserID):
+    pass
+
+
+class AttendanceUserPut(AttendanceMemberBase):
+    pass
+
+
+class AttendanceUserPatch(Partial(AttendanceMemberBase)):
+    pass
+
+
+class AttendanceUserParams(Nullified(AttendanceMemberBase)):
     pass

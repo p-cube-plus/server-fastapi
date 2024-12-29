@@ -4,12 +4,10 @@ from typing import Annotated
 from fastapi import Depends
 
 from app.context.attendance import AttendanceContext
-from app.dto.attendance import AttendancePayload, AttendanceRequest, AttendanceResponse
+from app.dto.attendance import AttendanceDTO
 from app.service.base import CRUDService
 
 
 @dataclass
-class AttendanceService(
-    CRUDService[AttendanceRequest, AttendanceResponse, AttendancePayload]
-):
+class AttendanceService(CRUDService[AttendanceDTO]):
     crud: Annotated[AttendanceContext, Depends()]
