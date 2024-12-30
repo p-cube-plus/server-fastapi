@@ -1,6 +1,6 @@
 from datetime import time
 
-from .base import BaseDTO, Nullified, Partial
+from .base import BaseDTO, Nullified, Partial, QueryParamsDTO
 
 
 class AttendanceID(BaseDTO):
@@ -31,5 +31,5 @@ class AttendancePatch(Partial(AttendanceBase)):
     pass
 
 
-class AttendanceParams(Nullified(AttendanceBase)):
+class AttendanceParams(Nullified(AttendanceBase), QueryParamsDTO):
     pass

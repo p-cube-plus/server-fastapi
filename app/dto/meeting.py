@@ -1,6 +1,6 @@
 from datetime import time
 
-from .base import BaseDTO, Nullified, Partial
+from .base import BaseDTO, Nullified, Partial, QueryParamsDTO
 
 
 class MeetingID(BaseDTO):
@@ -31,5 +31,5 @@ class MeetingPatch(Partial(MeetingBase)):
     pass
 
 
-class MeetingParams(Nullified(MeetingBase)):
+class MeetingParams(Nullified(MeetingBase), QueryParamsDTO):
     pass

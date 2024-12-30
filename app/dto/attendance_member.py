@@ -1,7 +1,7 @@
 from datetime import time
 from typing import Optional
 
-from .base import BaseDTO, Nullified, Partial
+from .base import BaseDTO, Nullified, Partial, QueryParamsDTO
 
 
 class AttendanceMemberID(BaseDTO):
@@ -60,5 +60,5 @@ class AttendanceUserPatch(Partial(AttendanceMemberBase)):
     pass
 
 
-class AttendanceUserParams(Nullified(AttendanceMemberBase)):
+class AttendanceUserParams(Nullified(AttendanceMemberBase), QueryParamsDTO):
     pass

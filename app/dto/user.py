@@ -1,7 +1,7 @@
 from dataclasses import Field
 from datetime import date
 
-from .base import BaseDTO, Nullified, Partial
+from .base import BaseDTO, Nullified, Partial, QueryParamsDTO
 
 
 class UserID(BaseDTO):
@@ -58,5 +58,5 @@ class UserPatch(Partial(UserBase)):
     pass
 
 
-class UserParams(Nullified(UserBase)):
+class UserParams(Nullified(UserBase), QueryParamsDTO):
     pass
