@@ -1,7 +1,10 @@
-from dataclasses import dataclass
-from typing import Generic, Optional, TypeVar
+from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict, create_model
+from dataclasses import dataclass
+from typing import Annotated, Any, Generic, Optional, TypeVar
+
+from fastapi import Depends, Request
+from pydantic import BaseModel, ConfigDict, create_model, model_validator
 from pydantic_core import PydanticUndefined
 from sqlalchemy.orm import DeclarativeBase
 
@@ -19,6 +22,10 @@ class BaseDTO(BaseModel, metaclass=DTOMeta):
 
     def dict(self, *args, exclude_unset=True, **kwargs):
         return self.model_dump(*args, exclude_unset=exclude_unset, **kwargs)
+
+
+class QueryParamsDTO:
+    pass
 
 
 DTO = TypeVar("DTO", bound=BaseDTO)
