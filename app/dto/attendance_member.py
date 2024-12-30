@@ -44,7 +44,7 @@ class UserAttendancePatch(Partial(AttendanceMemberBase)):
     pass
 
 
-class UserAttendanceParams(Nullified(AttendanceMemberBase)):
+class UserAttendanceParams(Nullified(AttendanceMemberBase), QueryParamsDTO):
     pass
 
 
