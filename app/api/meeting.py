@@ -1,7 +1,8 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import Depends
 
+from app.core.routing import CustomAPIRouter
 from app.dto.meeting import (
     MeetigPost,
     MeetingDTO,
@@ -11,18 +12,17 @@ from app.dto.meeting import (
 )
 from app.service.meeting import MeetingService
 
-router = APIRouter(
+router = CustomAPIRouter(
     prefix="/meetings",
 )
 
 
 @router.get("", response_model=list[MeetingDTO])
 async def get_meeting_list(
-    request: Request,
     meeting_params: Annotated[MeetingParams, Depends()],
     service: Annotated[MeetingService, Depends()],
 ):
-    meeting_list = await service.get(**request.query_params)
+    meeting_list = await service.get(**meeting_params.dict())
     return meeting_list
 
 

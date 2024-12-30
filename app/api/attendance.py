@@ -1,7 +1,8 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import Depends
 
+from app.core.routing import CustomAPIRouter
 from app.dto.attendance import (
     AttendanceDTO,
     AttendanceParams,
@@ -11,18 +12,17 @@ from app.dto.attendance import (
 )
 from app.service.attendance import AttendanceService
 
-router = APIRouter(
+router = CustomAPIRouter(
     prefix="/attendances",
 )
 
 
 @router.get("", response_model=list[AttendanceDTO])
 async def get_attendance_list(
-    request: Request,
     attendance_params: Annotated[AttendanceParams, Depends()],
     service: Annotated[AttendanceService, Depends()],
 ):
-    attendance_list = await service.get(**request.query_params)
+    attendance_list = await service.get(**attendance_params.dict())
     return attendance_list
 
 

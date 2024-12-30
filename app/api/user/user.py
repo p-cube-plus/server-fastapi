@@ -1,22 +1,22 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import Depends
 
+from app.core.routing import CustomAPIRouter
 from app.dto.user import UserDTO, UserParams, UserPatch, UserPost, UserPut
 from app.service.user import UserService
 
-router = APIRouter(
+router = CustomAPIRouter(
     prefix="/users",
 )
 
 
 @router.get("", response_model=list[UserDTO])
 async def get_user_list(
-    request: Request,
     user_params: Annotated[UserParams, Depends()],
     service: Annotated[UserService, Depends()],
 ):
-    user_list = await service.get(**request.query_params)
+    user_list = await service.get(**user_params.dict())
     return user_list
 
 

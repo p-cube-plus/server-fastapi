@@ -1,23 +1,26 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import Depends
 
+from app.core.routing import CustomAPIRouter
+from app.dto.attendance import AttendanceParams
 from app.dto.attendance_member import (
-    AttendanceMemberBase,
     AttendanceMemberDTO,
     AttendanceMemberPost,
     UserAttendancePost,
 )
 from app.service.attendance_member import AttendanceMemberService
 
-router = APIRouter(
+router = CustomAPIRouter(
     prefix="/users/{user_id}/attendances",
 )
 
 
 @router.get("", response_model=list[AttendanceMemberDTO])
 async def get_user_attendance_list(
-    user_id: int, service: Annotated[AttendanceMemberService, Depends()]
+    user_id: int,
+    attendance_params: Annotated[AttendanceParams, Depends()],
+    service: Annotated[AttendanceMemberService, Depends()],
 ):
     user_attendance_list = await service.get(user_id=user_id)
     return user_attendance_list
