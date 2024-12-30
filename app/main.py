@@ -1,11 +1,9 @@
-from fastapi import Depends, FastAPI
-from sqlalchemy import text
-from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.middleware.cors import CORSMiddleware
 
 from app.api import attendance, meeting, user
+from app.core.fastapi import CustomFastAPI
 
-app = FastAPI(docs_url="/", redoc_url=None)
+app = CustomFastAPI(docs_url="/", redoc_url=None)
 
 
 origins = ["*"]
