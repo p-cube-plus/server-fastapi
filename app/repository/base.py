@@ -8,6 +8,7 @@ from typing import (
     Callable,
     Collection,
     Generic,
+    Sequence,
     TypeVar,
     Union,
     get_args,
@@ -29,58 +30,63 @@ DTO = TypeVar("DTO", bound=BaseDTO)
 
 
 class ResultConverterMeta(type):
-    def __convert_atomic_result(result: Result, result_type: Any):
-        rows = result.mappings().all()
-        origin = get_origin(result_type)
 
-        if origin is list:
-            item_type = get_args(result_type)[0]
-            if not issubclass(item_type, BaseDTO):
-                raise TypeError(
-                    f"Expected list items to be of BaseDTO type, but got {item_type}"
-                )
-            return [item_type(**row) for row in rows]
+    def __convert_rows(rows: Sequence[Row], target_type: Any):
+        origin = get_origin(target_type)
 
-        if origin is Union:
-            args = get_args(result_type)
-            if len(args) == 2 and type(None) in args:
-                item_type = next(arg for arg in args if arg is not type(None))
-                if not issubclass(item_type, BaseDTO):
-                    raise TypeError(
-                        f"Optional value must be of BaseDTO type, but got {item_type}"
-                    )
-                if not rows:
-                    return None
-                return item_type(**rows[0])
-            raise TypeError(f"Union types are only supported for Optional[BaseDTO]")
-
-        if origin is None and issubclass(result_type, BaseDTO):
-            return result_type(**rows[0])
+        if origin is None:
+            if issubclass(target_type, BaseDTO):
+                return [target_type(row[0]) for row in rows]
+        elif origin is tuple:
+            args = get_args(target_type)
+            if all(issubclass(arg, BaseDTO) for arg in args):
+                return [
+                    tuple(arg(row[i]) for i, arg in enumerate(args)) for row in rows
+                ]
 
         raise TypeError(
-            f"Unable to convert Result to type {result_type} - expected BaseDTO, list[BaseDTO], or Optional[BaseDTO]"
+            f"Unable to cast Row instance to type {target_type} - expected BaseDTO or tuple[BaseDTO, ...]"
         )
 
-    def __convert_result(result: Any, result_type: type):
+    def __convert_result(result: Result, target_type: Any):
+        rows: Sequence[Row] = result.all()
+        origin = get_origin(target_type)
+
+        if origin is list:
+            return ResultConverterMeta.__convert_rows(rows, get_args(target_type)[0])
+
+        if origin is Union:
+            args = get_args(target_type)
+            if len(args) == 2 and type(None) in args:
+                if not rows:
+                    return None
+                return ResultConverterMeta.__convert_rows(
+                    rows, next(arg for arg in args if arg is not type(None))
+                )
+
+        return ResultConverterMeta.__convert_rows(rows, target_type)
+
+    def __convert_composite_result(result: Any, target_type: type):
         if isinstance(result, Result):
-            return ResultConverterMeta.__convert_atomic_result(result, result_type)
+            return ResultConverterMeta.__convert_result(result, target_type)
 
         if isinstance(result, list):
-            if not get_origin(result_type) is list:
-                raise TypeError(f"Expected {result_type}, but got list")
-            item_type = get_args(result_type[0])
+            if not get_origin(target_type) is list:
+                raise TypeError(f"Expected {target_type}, but got list")
+            item_type = get_args(target_type[0])
             return [
-                ResultConverterMeta.__convert_result(item, item_type) for item in result
+                ResultConverterMeta.__convert_composite_result(item, item_type)
+                for item in result
             ]
 
         if isinstance(result, dict):
-            if not get_origin(result_type) is dict:
-                raise TypeError(f"Expected {result_type}, but got dict")
-            key_type, value_type = get_args(result_type)
+            if not get_origin(target_type) is dict:
+                raise TypeError(f"Expected {target_type}, but got dict")
+            key_type, value_type = get_args(target_type)
             return {
-                ResultConverterMeta.__convert_result(
+                ResultConverterMeta.__convert_composite_result(
                     k, key_type
-                ): ResultConverterMeta.__convert_result(v, value_type)
+                ): ResultConverterMeta.__convert_composite_result(v, value_type)
                 for k, v in result.items()
             }
 
@@ -90,7 +96,7 @@ class ResultConverterMeta(type):
         @wraps(func)
         async def wrapper(self, *args, **kwargs):
             result = await func(self, *args, **kwargs)
-            return ResultConverterMeta.__convert_result(result, resolved_type)
+            return ResultConverterMeta.__convert_composite_result(result, resolved_type)
 
         return wrapper
 
@@ -161,7 +167,7 @@ class CRUDRepository(
 
     async def get(self, **filters) -> list[DTO]:
         stmt = (
-            select(*self._entity_type.columns())
+            select(self._entity_type)
             .select_from(self._entity_type)
             .filter_by(**filters)
         )
@@ -173,7 +179,7 @@ class CRUDRepository(
         result = await self.session.execute(stmt)
 
         stmt = (
-            select(*self._entity_type.columns())
+            select(self._entity_type)
             .select_from(self._entity_type)
             .where(self._entity_type.id >= result.lastrowid)
         )
@@ -189,12 +195,12 @@ class CRUDRepository(
 
         await self.session.execute(stmt)
 
-        stmt = select(*self._entity_type.columns()).filter_by(**filters)
+        stmt = select(self._entity_type).filter_by(**filters)
 
         return await self.session.execute(stmt)
 
     async def delete(self, **filters) -> list[DTO]:
-        stmt = select(*self._entity_type.columns()).filter_by(**filters)
+        stmt = select(self._entity_type).filter_by(**filters)
 
         result = await self.session.execute(stmt)
 
