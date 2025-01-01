@@ -174,7 +174,9 @@ class CRUDRepository(
         return await self.session.execute(stmt)
 
     async def create(self, dto_list: list[BaseDTO]) -> list[DTO]:
-        stmt = insert(self._entity_type).values([dto.dict() for dto in dto_list])
+        stmt = insert(self._entity_type).values(
+            [dto.dict(exclude_unset=False) for dto in dto_list]
+        )
 
         result = await self.session.execute(stmt)
 
