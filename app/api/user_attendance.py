@@ -3,12 +3,16 @@ from typing import Annotated
 from fastapi import Depends
 
 from app.core.routing import CustomAPIRouter
+from app.dto.attendance import AttendanceDTO
+from app.dto.user import UserDTO
 from app.dto.user_attendance import (
+    AttendanceUserRecordDTO,
     UserAttendanceDTO,
     UserAttendanceParams,
     UserAttendancePatch,
     UserAttendancePost,
     UserAttendancePut,
+    UserAttendanceRecordDTO,
 )
 from app.service.user_attendance import UserAttendanceService
 
@@ -69,3 +73,27 @@ async def delete_user_attendance(
 ):
     deleted_user_attendance = await service.delete(id=id)
     return deleted_user_attendance[0]
+
+
+@router.get("/users/{user_id}", response_model=list[UserAttendanceRecordDTO])
+async def get_user_attendance_records(
+    user_id: int, service: Annotated[UserAttendanceService, Depends()]
+):
+    result = await service.get_user_attendance_records(user_id=user_id)
+    return [
+        UserAttendanceRecordDTO(user_attendance=user_attendance, attendance=attendance)
+        for user_attendance, attendance in result
+    ]
+
+
+@router.get(
+    "/attendances/{attendance_id}", response_model=list[AttendanceUserRecordDTO]
+)
+async def get_attendance_user_records(
+    attendance_id: int, service: Annotated[UserAttendanceService, Depends()]
+):
+    result = await service.get_attendance_user_records(attendance_id=attendance_id)
+    return [
+        AttendanceUserRecordDTO(user_attendance=user_attendance, user=user)
+        for user_attendance, user in result
+    ]
