@@ -1,10 +1,10 @@
-from sqlalchemy import BigInteger, Column, Integer, String, Time
+from sqlalchemy import BigInteger, Column, Integer, Time
 
 from .base import BaseEntity
 
 
-class AttendanceMemberEntity(BaseEntity):
-    __tablename__ = "attendance_member"
+class UserAttendanceEntity(BaseEntity):
+    __tablename__ = "user_attendance"
 
     id = Column(BigInteger, primary_key=True, autoincrement=True)
     attendance_id = Column(BigInteger, nullable=False)
