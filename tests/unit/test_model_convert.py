@@ -1,19 +1,20 @@
 import asyncio
 
 import pytest
-from sqlalchemy import inspect
+from sqlalchemy import inspect, select
 
 from app.database.mysql import MySQLDatabase
-from app.dto.user import UserResponse
 from app.entity.user import UserEntity
+from app.entity.user_attendance import UserAttendanceEntity
 from app.repository.user import UserRepository
+from app.repository.user_attendance import UserAttendanceRepository
 
 
 @pytest.mark.asyncio(scope="session")
 async def test_convert_dto_to_entity():
     async for db in MySQLDatabase():
         user_repo = UserRepository(db)
-        user_dto = (await user_repo.get_all())[0]
+        user_dto = (await user_repo.get())[0]
 
     user_entity = UserEntity(user_dto)
 
