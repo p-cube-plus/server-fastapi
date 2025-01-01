@@ -40,7 +40,7 @@ async def get_user_attendance_records(
 ):
     today = datetime.now().date()
 
-    result = await service.get_user_attendance_records(user_id=user_id, date=today)
+    result = await service.get_user_attendance_list(user_id=user_id, date=today)
     return [
         UserAttendanceListDTO(user_attendance=user_attendance, attendance=attendance)
         for user_attendance, attendance in result
