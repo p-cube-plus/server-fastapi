@@ -57,11 +57,11 @@ class AttendanceUserParams(Nullified(UserAttendanceBase), QueryParamsDTO):
     pass
 
 
-class UserAttendanceRecordDTO(BaseDTO):
+class UserAttendanceListDTO(BaseDTO):
     user_attendance: UserAttendanceDTO
     attendance: AttendanceDTO | None
 
 
-class AttendanceUserRecordDTO(BaseDTO):
+class AttendanceUserListDTO(BaseDTO):
     user_attendance: UserAttendanceDTO
     user: UserDTO | None
