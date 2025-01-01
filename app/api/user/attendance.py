@@ -1,10 +1,13 @@
+from datetime import datetime
 from typing import Annotated
 
 from fastapi import Depends
 
 from app.core.routing import CustomAPIRouter
+from app.dto.attendance import AttendanceParams
 from app.dto.user_attendance import (
     UserAttendanceDTO,
+    UserAttendanceListDTO,
     UserAttendanceParams,
     UserAttendancePatch,
     UserAttendancePost,
@@ -27,6 +30,20 @@ async def get_user_attendance_list(
         user_id=user_id, **user_attendance_params.dict()
     )
     return user_attendance_list
+
+
+@router.get("/today", response_model=list[UserAttendanceListDTO])
+async def get_user_attendance_records(
+    user_id: int,
+    service: Annotated[UserAttendanceService, Depends()],
+):
+    today = datetime.now().date()
+
+    result = await service.get_user_attendance_records(user_id=user_id, date=today)
+    return [
+        UserAttendanceListDTO(user_attendance=user_attendance, attendance=attendance)
+        for user_attendance, attendance in result
+    ]
 
 
 @router.get("/{attendance_id}", response_model=UserAttendanceDTO)
