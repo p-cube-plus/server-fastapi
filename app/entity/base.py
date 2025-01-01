@@ -26,9 +26,12 @@ class EntityMeta(type(DeclarativeBase)):
         return cls
 
     def __call__(cls, *args, **kwargs):
-        if len(args) == 1 and isinstance(args[0], BaseModel):
-            instance = cls(**args[0].model_dump(exclude_unset=True))
-            return instance
+        if len(args) == 1:
+            if isinstance(args[0], BaseModel):
+                instance = cls(**args[0].model_dump(exclude_unset=True))
+                return instance
+            elif args[0] is None:
+                return None
         return super().__call__(*args, **kwargs)
 
 

@@ -11,9 +11,12 @@ from sqlalchemy.orm import DeclarativeBase
 
 class DTOMeta(type(BaseModel)):
     def __call__(cls, *args, **kwargs):
-        if len(args) == 1 and isinstance(args[0], DeclarativeBase):
-            instance = cls.model_validate(args[0])
-            return instance
+        if len(args) == 1:
+            if isinstance(args[0], DeclarativeBase):
+                instance = cls.model_validate(args[0])
+                return instance
+            elif args[0] is None:
+                return None
         return super().__call__(*args, **kwargs)
 
 
