@@ -16,8 +16,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(user.router)
-app.include_router(attendance.router)
+app.include_router(user.router, tags=["user"])
+app.include_router(attendance.router, tags=["attendance"])
 app.include_router(meeting.router, tags=["meeting"])
 
 if __name__ == "__main__":
