@@ -4,7 +4,7 @@ from typing import Annotated
 from fastapi import Depends
 
 from app.core.routing import CustomAPIRouter
-from app.dto.attendance import AttendanceParams
+from app.dto.attendance import AttendanceParams, AttendancePost
 from app.dto.user_attendance import (
     UserAttendanceDTO,
     UserAttendanceListDTO,
@@ -13,6 +13,7 @@ from app.dto.user_attendance import (
     UserAttendancePost,
     UserAttendancePut,
 )
+from app.service.attendance import AttendanceService
 from app.service.user_attendance import UserAttendanceService
 
 router = CustomAPIRouter(
@@ -107,3 +108,16 @@ async def delete_user_attendance(
         user_id=user_id, attendance_id=attendance_id
     )
     return deleted_user_attendance[0]
+
+
+@router.patch("/{attendance_id}/request", response_model=UserAttendanceDTO)
+async def request_user_attendance(
+    user_id: int,
+    attendance_id: int,
+    user_attendance_service: Annotated[UserAttendanceService, Depends()],
+):
+    current_datetime = datetime.now()
+    requested_user_attendance = await user_attendance_service.request_user_attendance(
+        user_id=user_id, attendance_id=attendance_id, current_datetime=current_datetime
+    )
+    return requested_user_attendance
