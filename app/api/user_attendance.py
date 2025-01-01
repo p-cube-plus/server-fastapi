@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Annotated
 
 from fastapi import Depends
@@ -86,6 +87,24 @@ async def get_user_attendance_records(
     attendance_params: Annotated[AttendanceParams, Depends()],
     service: Annotated[UserAttendanceService, Depends()],
 ):
+    result = await service.get_user_attendance_records(
+        user_id=user_id, **attendance_params.dict()
+    )
+    return [
+        UserAttendanceRecordDTO(user_attendance=user_attendance, attendance=attendance)
+        for user_attendance, attendance in result
+    ]
+
+
+@router.get("/users/{user_id}/today", response_model=list[UserAttendanceRecordDTO])
+async def get_user_attendance_records(
+    user_id: int,
+    attendance_params: Annotated[AttendanceParams, Depends()],
+    service: Annotated[UserAttendanceService, Depends()],
+):
+    if attendance_params.date is None:
+        attendance_params.date = datetime.now().date()
+
     result = await service.get_user_attendance_records(
         user_id=user_id, **attendance_params.dict()
     )
