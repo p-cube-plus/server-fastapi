@@ -7,12 +7,11 @@ from app.dto.user import UserDTO
 from .base import BaseDTO, Nullified, Partial, QueryParamsDTO
 
 
-class UserAttendancePK(BaseDTO):
-    id: int
-
-
-class UserAttendanceID(BaseDTO):
+class UserID(BaseDTO):
     user_id: int
+
+
+class AttendanceID(BaseDTO):
     attendance_id: int
 
 
@@ -22,11 +21,11 @@ class UserAttendanceBase(BaseDTO):
     second_auth_time: time | None = None
 
 
-class UserAttendanceDTO(UserAttendanceBase, UserAttendanceID, UserAttendancePK):
+class UserAttendanceDTO(UserAttendanceBase, AttendanceID, UserID):
     pass
 
 
-class UserAttendancePost(UserAttendanceBase, UserAttendanceID):
+class UserAttendancePost(UserAttendanceBase, AttendanceID):
     pass
 
 
@@ -38,9 +37,23 @@ class UserAttendancePatch(Partial(UserAttendanceBase)):
     pass
 
 
-class UserAttendanceParams(
-    Nullified(UserAttendanceBase), Nullified(UserAttendanceID), QueryParamsDTO
-):
+class UserAttendanceParams(Nullified(UserAttendanceBase), QueryParamsDTO):
+    pass
+
+
+class AttendanceUserPost(UserAttendanceBase, UserID):
+    pass
+
+
+class AttendanceUserPut(UserAttendanceBase):
+    pass
+
+
+class AttendanceUserPatch(Partial(UserAttendanceBase)):
+    pass
+
+
+class AttendanceUserParams(Nullified(UserAttendanceBase), QueryParamsDTO):
     pass
 
 
