@@ -20,7 +20,7 @@ class UserAttendanceRepository(
     ]
 ):
 
-    async def get_user_attendance_records(
+    async def get_user_attendance_list(
         self, *, user_id, **filters
     ) -> list[tuple[UserAttendanceDTO, AttendanceDTO]]:
         stmt = (
@@ -35,7 +35,7 @@ class UserAttendanceRepository(
         )
         return await self.session.execute(stmt)
 
-    async def get_attendance_user_records(
+    async def get_attendance_user_list(
         self, *, attendance_id, **filters
     ) -> list[tuple[UserAttendanceDTO, UserDTO]]:
         stmt = (
