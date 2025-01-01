@@ -1,4 +1,4 @@
-from datetime import time
+from datetime import date, time
 
 from .base import BaseDTO, Nullified, Partial, QueryParamsDTO
 
@@ -9,6 +9,7 @@ class AttendanceID(BaseDTO):
 
 class AttendanceBase(BaseDTO):
     meeting_id: int
+    date: date
     first_auth_start_time: time = None
     first_auth_end_time: time = None
     second_auth_start_time: time = None

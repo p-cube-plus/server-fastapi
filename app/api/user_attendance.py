@@ -3,8 +3,8 @@ from typing import Annotated
 from fastapi import Depends
 
 from app.core.routing import CustomAPIRouter
-from app.dto.attendance import AttendanceDTO
-from app.dto.user import UserDTO
+from app.dto.attendance import AttendanceDTO, AttendanceParams
+from app.dto.user import UserDTO, UserParams
 from app.dto.user_attendance import (
     AttendanceUserRecordDTO,
     UserAttendanceDTO,
@@ -30,14 +30,6 @@ async def get_user_attendance_list(
     return user_attendance_list
 
 
-@router.get("/{id}", response_model=UserAttendanceDTO)
-async def get_user_attendance_by_id(
-    id: int, service: Annotated[UserAttendanceService, Depends()]
-):
-    user_attendance = await service.get(id=id)
-    return user_attendance[0]
-
-
 @router.post("", response_model=UserAttendanceDTO)
 async def create_user_attendance(
     user_attendance_post: UserAttendancePost,
@@ -47,39 +39,56 @@ async def create_user_attendance(
     return new_user_attendance[0]
 
 
-@router.put("/{id}", response_model=UserAttendanceDTO)
+@router.put("", response_model=UserAttendanceDTO)
 async def replace_user_attendance(
-    id: int,
+    user_id: int,
+    attendance_id: int,
     user_attendance_put: UserAttendancePut,
     service: Annotated[UserAttendanceService, Depends()],
 ):
-    replaced_user_attendance = await service.replace(user_attendance_put, id=id)
+    replaced_user_attendance = await service.update(
+        user_attendance_put,
+        exclude_unset=False,
+        user_id=user_id,
+        attendance_id=attendance_id,
+    )
     return replaced_user_attendance[0]
 
 
-@router.patch("/{id}", response_model=UserAttendanceDTO)
+@router.patch("", response_model=UserAttendanceDTO)
 async def update_user_attendance(
-    id: int,
+    user_id: int,
+    attendance_id: int,
     user_attendance_patch: UserAttendancePatch,
     service: Annotated[UserAttendanceService, Depends()],
 ):
-    updated_user_attendance = await service.update(user_attendance_patch, id=id)
+    updated_user_attendance = await service.update(
+        user_attendance_patch, user_id=user_id, attendance_id=attendance_id
+    )
     return updated_user_attendance[0]
 
 
-@router.delete("/{id}", response_model=UserAttendanceDTO)
+@router.delete("", response_model=UserAttendanceDTO)
 async def delete_user_attendance(
-    id: int, service: Annotated[UserAttendanceService, Depends()]
+    user_id: int,
+    attendance_id: int,
+    service: Annotated[UserAttendanceService, Depends()],
 ):
-    deleted_user_attendance = await service.delete(id=id)
+    deleted_user_attendance = await service.delete(
+        user_id=user_id, attendance_id=attendance_id
+    )
     return deleted_user_attendance[0]
 
 
 @router.get("/users/{user_id}", response_model=list[UserAttendanceRecordDTO])
 async def get_user_attendance_records(
-    user_id: int, service: Annotated[UserAttendanceService, Depends()]
+    user_id: int,
+    attendance_params: Annotated[AttendanceParams, Depends()],
+    service: Annotated[UserAttendanceService, Depends()],
 ):
-    result = await service.get_user_attendance_records(user_id=user_id)
+    result = await service.get_user_attendance_records(
+        user_id=user_id, **attendance_params.dict()
+    )
     return [
         UserAttendanceRecordDTO(user_attendance=user_attendance, attendance=attendance)
         for user_attendance, attendance in result
@@ -90,9 +99,13 @@ async def get_user_attendance_records(
     "/attendances/{attendance_id}", response_model=list[AttendanceUserRecordDTO]
 )
 async def get_attendance_user_records(
-    attendance_id: int, service: Annotated[UserAttendanceService, Depends()]
+    attendance_id: int,
+    user_params: Annotated[UserParams, Depends()],
+    service: Annotated[UserAttendanceService, Depends()],
 ):
-    result = await service.get_attendance_user_records(attendance_id=attendance_id)
+    result = await service.get_attendance_user_records(
+        attendance_id=attendance_id, **user_params.dict()
+    )
     return [
         AttendanceUserRecordDTO(user_attendance=user_attendance, user=user)
         for user_attendance, user in result

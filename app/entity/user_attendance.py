@@ -1,4 +1,4 @@
-from sqlalchemy import BigInteger, Column, Integer, Time
+from sqlalchemy import BigInteger, Column, Date, Integer, Time
 
 from .base import BaseEntity
 
