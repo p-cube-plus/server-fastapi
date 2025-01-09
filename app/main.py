@@ -1,6 +1,6 @@
 from starlette.middleware.cors import CORSMiddleware
 
-from app.api import attendance, meeting, user
+from app.api import attendance, auth, meeting, user
 from app.core.fastapi import CustomFastAPI
 
 app = CustomFastAPI(docs_url="/", redoc_url=None)
@@ -19,6 +19,7 @@ app.add_middleware(
 app.include_router(user.router)
 app.include_router(attendance.router)
 app.include_router(meeting.router, tags=["meeting"])
+app.include_router(auth.router, tags=["auth"])
 
 if __name__ == "__main__":
     import uvicorn
