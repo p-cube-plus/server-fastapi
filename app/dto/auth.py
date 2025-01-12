@@ -16,3 +16,12 @@ class OTPVerifyPost(BaseDTO):
 
 class OTPVerifyResponse(BaseDTO):
     is_verified: bool
+
+
+class TokenRefreshPost(BaseDTO):
+    refresh_token: str
+
+
+class TokenResponse(BaseDTO):
+    access_token: str
+    refresh_token: str

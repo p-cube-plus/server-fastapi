@@ -69,3 +69,7 @@ class OTPService(BaseService):
 
         ciphertext = self.aesgcm.encrypt(nonce, payload.encode(), None)
         return base64.urlsafe_b64encode(nonce + ciphertext).decode()
+
+
+class JWTService(BaseService):
+    pass
