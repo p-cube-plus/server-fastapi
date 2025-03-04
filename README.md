@@ -53,6 +53,9 @@ poetry install
 
 ```bash
 poetry shell
+
+# shell 커맨드를 설치해야 한다고 출력되는 경우 아래 명령어 대신 실행
+eval $(poetry env activate)
 ```
 
 ### 프로젝트 실행
