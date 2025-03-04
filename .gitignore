@@ -20,6 +20,3 @@ config/
 
 # 임시 테스트용 코드
 scratch/
-
-# pyenv 설정 파일
-.python-version
