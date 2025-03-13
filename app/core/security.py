@@ -1,20 +1,24 @@
+from contextvars import ContextVar
 from datetime import datetime, timedelta
 from typing import Literal, Optional
 
 import jwt
-from fastapi import HTTPException, Request, status
+from fastapi import HTTPException, Request, Response, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.core.config import get_settings
 
-config = get_settings()["jwt"]
+_config = get_settings()["jwt"]
+
+_jwt_context = ContextVar("jwt_context")
 
 
 class JWTCodec:
-    algorithm: str = config["algorithm"]
-    secret_key: str = config["secret_key"]
-    access_token_expire_minutes: int = int(config["access_token_expire_minutes"])
-    refresh_token_expire_days: int = int(config["refresh_token_expire_days"])
+    algorithm: str = _config["algorithm"]
+    secret_key: str = _config["secret_key"]
+    access_token_expire_minutes: int = int(_config["access_token_expire_minutes"])
+    refresh_token_expire_days: int = int(_config["refresh_token_expire_days"])
 
     @staticmethod
     def _create_access_token(payload: dict) -> str:
@@ -77,3 +81,31 @@ class JWTAuthenticator(HTTPBearer):
         cred: HTTPAuthorizationCredentials = await super().__call__(request)
         payload: dict = JWTCodec.decode(cred.credentials)
         return JWT(payload)
+
+
+class JWTMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next) -> Response:
+        token = _jwt_context.set({})
+        try:
+            auth_header = request.headers.get("Authorization")
+
+            if auth_header and auth_header.startswith("Bearer "):
+                token_str = auth_header.replace("Bearer ", "")
+                try:
+                    payload = JWTCodec.decode(token_str)
+                    _jwt_context.set(payload)
+                except Exception:
+                    pass
+            response = await call_next(request)
+            return response
+        finally:
+            _jwt_context.reset(token)
+
+
+def get_jwt() -> dict:
+    return _jwt_context.get()
+
+
+def get_current_user() -> int:
+    jwt: dict = _jwt_context.get()
+    return jwt.get("user_id")

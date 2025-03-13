@@ -2,6 +2,7 @@ from starlette.middleware.cors import CORSMiddleware
 
 from app.api import attendance, auth, meeting, user
 from app.core.fastapi import CustomFastAPI
+from app.core.security import JWTMiddleware
 
 app = CustomFastAPI(docs_url="/", redoc_url=None)
 
@@ -15,6 +16,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.add_middleware(JWTMiddleware)
 
 app.include_router(user.router)
 app.include_router(attendance.router)
