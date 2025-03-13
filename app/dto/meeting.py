@@ -19,7 +19,7 @@ class MeetingDTO(MeetingBase, MeetingID):
     pass
 
 
-class MeetigPost(MeetingBase):
+class MeetingPost(MeetingBase):
     pass
 
 
