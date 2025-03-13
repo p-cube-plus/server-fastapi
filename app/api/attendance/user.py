@@ -32,7 +32,7 @@ async def get_attendance_user_list(
 @router.get("/{user_id}", response_model=UserAttendanceDTO)
 async def get_attendance_user_by_user_id(
     attendance_id: int,
-    user_id: int,
+    user_id: int | str,
     service: Annotated[UserAttendanceService, Depends()],
 ):
     attendance_user_list = await service.get(
@@ -60,7 +60,7 @@ async def create_attendance_user(
 @router.put("/{user_id}", response_model=UserAttendanceDTO)
 async def update_attendance_user(
     attendance_id: int,
-    user_id: int,
+    user_id: int | str,
     attendance_user_put: AttendanceUserPut,
     service: Annotated[UserAttendanceService, Depends()],
 ):
@@ -80,7 +80,7 @@ async def update_attendance_user(
 @router.patch("/{user_id}", response_model=UserAttendanceDTO)
 async def patch_attendance_user(
     attendance_id: int,
-    user_id: int,
+    user_id: int | str,
     attendance_user_patch: AttendanceUserPatch,
     service: Annotated[UserAttendanceService, Depends()],
 ):
@@ -97,7 +97,7 @@ async def patch_attendance_user(
 @router.delete("/{user_id}", response_model=UserAttendanceDTO)
 async def delete_attendance_user(
     attendance_id: int,
-    user_id: int,
+    user_id: int | str,
     service: Annotated[UserAttendanceService, Depends()],
 ):
     deleted_attendance_user_list = await service.delete(

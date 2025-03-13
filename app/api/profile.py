@@ -28,7 +28,7 @@ async def get_profile_list(
 
 @router.get("/{user_id}", response_model=ProfileDTO)
 async def get_profile_by_user_id(
-    user_id: int, service: Annotated[ProfileService, Depends()]
+    user_id: int | str, service: Annotated[ProfileService, Depends()]
 ):
     profile_list = await service.get(user_id=user_id)
     if not profile_list:
@@ -48,7 +48,7 @@ async def create_profile(
 
 @router.put("/{user_id}", response_model=ProfileDTO)
 async def replace_profile(
-    user_id: int,
+    user_id: int | str,
     profile_put: ProfilePut,
     service: Annotated[ProfileService, Depends()],
 ):
@@ -64,7 +64,7 @@ async def replace_profile(
 
 @router.patch("/{user_id}", response_model=ProfileDTO)
 async def update_profile(
-    user_id: int,
+    user_id: int | str,
     profile_patch: ProfilePatch,
     service: Annotated[ProfileService, Depends()],
 ):
@@ -77,7 +77,9 @@ async def update_profile(
 
 
 @router.delete("/{user_id}", response_model=ProfileDTO)
-async def delete_profile(user_id: int, service: Annotated[ProfileService, Depends()]):
+async def delete_profile(
+    user_id: int | str, service: Annotated[ProfileService, Depends()]
+):
     deleted_profile_list = await service.delete(user_id=user_id)
     if not deleted_profile_list:
         raise HTTPException(

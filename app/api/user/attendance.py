@@ -23,7 +23,7 @@ router = CustomAPIRouter(
 
 @router.get("", response_model=list[UserAttendanceDTO])
 async def get_user_attendance_list(
-    user_id: int,
+    user_id: int | str,
     user_attendance_params: Annotated[UserAttendanceParams, Depends()],
     service: Annotated[UserAttendanceService, Depends()],
 ):
@@ -35,7 +35,7 @@ async def get_user_attendance_list(
 
 @router.get("/today", response_model=list[UserAttendanceListDTO])
 async def get_user_attendance_records(
-    user_id: int,
+    user_id: int | str,
     service: Annotated[UserAttendanceService, Depends()],
 ):
     today = datetime.now().date()
@@ -48,7 +48,7 @@ async def get_user_attendance_records(
 
 @router.get("/{attendance_id}", response_model=UserAttendanceDTO)
 async def get_user_attendance_by_attendance_id(
-    user_id: int,
+    user_id: int | str,
     attendance_id: int,
     service: Annotated[UserAttendanceService, Depends()],
 ):
@@ -64,7 +64,7 @@ async def get_user_attendance_by_attendance_id(
 
 @router.post("", response_model=UserAttendanceDTO)
 async def create_user_attendance(
-    user_id: int,
+    user_id: int | str,
     user_attendance_post: UserAttendancePost,
     service: Annotated[UserAttendanceService, Depends()],
 ):
@@ -76,7 +76,7 @@ async def create_user_attendance(
 
 @router.put("/{attendance_id}", response_model=UserAttendanceDTO)
 async def update_user_attendance(
-    user_id: int,
+    user_id: int | str,
     attendance_id: int,
     user_attendance_put: UserAttendancePut,
     service: Annotated[UserAttendanceService, Depends()],
@@ -96,7 +96,7 @@ async def update_user_attendance(
 
 @router.patch("/{attendance_id}", response_model=UserAttendanceDTO)
 async def patch_user_attendance(
-    user_id: int,
+    user_id: int | str,
     attendance_id: int,
     user_attendance_patch: UserAttendancePatch,
     service: Annotated[UserAttendanceService, Depends()],
@@ -113,7 +113,7 @@ async def patch_user_attendance(
 
 @router.delete("/{attendance_id}", response_model=UserAttendanceDTO)
 async def delete_user_attendance(
-    user_id: int,
+    user_id: int | str,
     attendance_id: int,
     service: Annotated[UserAttendanceService, Depends()],
 ):
@@ -129,7 +129,7 @@ async def delete_user_attendance(
 
 @router.patch("/{attendance_id}/request", response_model=UserAttendanceDTO)
 async def request_user_attendance(
-    user_id: int,
+    user_id: int | str,
     attendance_id: int,
     user_attendance_service: Annotated[UserAttendanceService, Depends()],
 ):

@@ -28,7 +28,7 @@ async def get_academic_list(
 
 @router.get("/{user_id}", response_model=AcademicDTO)
 async def get_academic_by_user_id(
-    user_id: int, service: Annotated[AcademicService, Depends()]
+    user_id: int | str, service: Annotated[AcademicService, Depends()]
 ):
     academic_list = await service.get(user_id=user_id)
     if not academic_list:
@@ -48,7 +48,7 @@ async def create_academic(
 
 @router.put("/{user_id}", response_model=AcademicDTO)
 async def replace_academic(
-    user_id: int,
+    user_id: int | str,
     academic_put: AcademicPut,
     service: Annotated[AcademicService, Depends()],
 ):
@@ -64,7 +64,7 @@ async def replace_academic(
 
 @router.patch("/{user_id}", response_model=AcademicDTO)
 async def update_academic(
-    user_id: int,
+    user_id: int | str,
     academic_patch: AcademicPatch,
     service: Annotated[AcademicService, Depends()],
 ):
@@ -77,7 +77,9 @@ async def update_academic(
 
 
 @router.delete("/{user_id}", response_model=AcademicDTO)
-async def delete_academic(user_id: int, service: Annotated[AcademicService, Depends()]):
+async def delete_academic(
+    user_id: int | str, service: Annotated[AcademicService, Depends()]
+):
     deleted_academic_list = await service.delete(user_id=user_id)
     if not deleted_academic_list:
         raise HTTPException(

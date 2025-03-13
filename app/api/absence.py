@@ -28,7 +28,7 @@ async def get_absence_list(
 
 @router.get("/{user_id}", response_model=AbsenceDTO)
 async def get_absence_by_user_id(
-    user_id: int, service: Annotated[AbsenceService, Depends()]
+    user_id: int | str, service: Annotated[AbsenceService, Depends()]
 ):
     absence_list = await service.get(user_id=user_id)
     if not absence_list:
@@ -48,7 +48,7 @@ async def create_absence(
 
 @router.put("/{user_id}", response_model=AbsenceDTO)
 async def replace_absence(
-    user_id: int,
+    user_id: int | str,
     absence_put: AbsencePut,
     service: Annotated[AbsenceService, Depends()],
 ):
@@ -64,7 +64,7 @@ async def replace_absence(
 
 @router.patch("/{user_id}", response_model=AbsenceDTO)
 async def update_absence(
-    user_id: int,
+    user_id: int | str,
     absence_patch: AbsencePatch,
     service: Annotated[AbsenceService, Depends()],
 ):
@@ -77,7 +77,9 @@ async def update_absence(
 
 
 @router.delete("/{user_id}", response_model=AbsenceDTO)
-async def delete_absence(user_id: int, service: Annotated[AbsenceService, Depends()]):
+async def delete_absence(
+    user_id: int | str, service: Annotated[AbsenceService, Depends()]
+):
     deleted_absence_list = await service.delete(user_id=user_id)
     if not deleted_absence_list:
         raise HTTPException(

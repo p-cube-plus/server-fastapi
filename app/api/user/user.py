@@ -21,7 +21,7 @@ async def get_user_list(
 
 
 @router.get("/{id}", response_model=UserDTO)
-async def get_user_by_id(id: int, service: Annotated[UserService, Depends()]):
+async def get_user_by_id(id: int | str, service: Annotated[UserService, Depends()]):
     user_list = await service.get(id=id)
     if not user_list:
         raise HTTPException(
@@ -38,7 +38,7 @@ async def create_user(user_post: UserPost, service: Annotated[UserService, Depen
 
 @router.put("/{id}", response_model=UserDTO)
 async def replace_user(
-    id: int, user_put: UserPut, service: Annotated[UserService, Depends()]
+    id: int | str, user_put: UserPut, service: Annotated[UserService, Depends()]
 ):
     replaced_user_list = await service.update(user_put, exclude_unset=False, id=id)
     if not replaced_user_list:
@@ -50,7 +50,7 @@ async def replace_user(
 
 @router.patch("/{id}", response_model=UserDTO)
 async def update_user(
-    id: int, user_patch: UserPatch, service: Annotated[UserService, Depends()]
+    id: int | str, user_patch: UserPatch, service: Annotated[UserService, Depends()]
 ):
     updated_user_list = await service.update(user_patch, id=id)
     if not updated_user_list:
@@ -61,7 +61,7 @@ async def update_user(
 
 
 @router.delete("/{id}", response_model=UserDTO)
-async def delete_user(id: int, service: Annotated[UserService, Depends()]):
+async def delete_user(id: int | str, service: Annotated[UserService, Depends()]):
     deleted_user_list = await service.delete(id=id)
     if not deleted_user_list:
         raise HTTPException(

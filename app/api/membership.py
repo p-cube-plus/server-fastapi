@@ -28,7 +28,7 @@ async def get_membership_list(
 
 @router.get("/{user_id}", response_model=MembershipDTO)
 async def get_membership_by_user_id(
-    user_id: int, service: Annotated[MembershipService, Depends()]
+    user_id: int | str, service: Annotated[MembershipService, Depends()]
 ):
     membership_list = await service.get(user_id=user_id)
     if not membership_list:
@@ -48,7 +48,7 @@ async def create_membership(
 
 @router.put("/{user_id}", response_model=MembershipDTO)
 async def replace_membership(
-    user_id: int,
+    user_id: int | str,
     membership_put: MembershipPut,
     service: Annotated[MembershipService, Depends()],
 ):
@@ -64,7 +64,7 @@ async def replace_membership(
 
 @router.patch("/{user_id}", response_model=MembershipDTO)
 async def update_membership(
-    user_id: int,
+    user_id: int | str,
     membership_patch: MembershipPatch,
     service: Annotated[MembershipService, Depends()],
 ):
@@ -78,7 +78,7 @@ async def update_membership(
 
 @router.delete("/{user_id}", response_model=MembershipDTO)
 async def delete_membership(
-    user_id: int, service: Annotated[MembershipService, Depends()]
+    user_id: int | str, service: Annotated[MembershipService, Depends()]
 ):
     deleted_membership_list = await service.delete(user_id=user_id)
     if not deleted_membership_list:
