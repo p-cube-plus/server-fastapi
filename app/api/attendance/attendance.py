@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import Depends
+from fastapi import Depends, HTTPException, status
 
 from app.core.routing import CustomAPIRouter
 from app.dto.attendance import (
@@ -30,8 +30,12 @@ async def get_attendance_list(
 async def get_attendance_by_id(
     id: int, service: Annotated[AttendanceService, Depends()]
 ):
-    attendance = await service.get(id=id)
-    return attendance[0]
+    attendance_list = await service.get(id=id)
+    if not attendance_list:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Attendance not found"
+        )
+    return attendance_list[0]
 
 
 @router.post("", response_model=AttendanceDTO)
@@ -39,8 +43,8 @@ async def create_attendance(
     attendance_post: AttendancePost,
     service: Annotated[AttendanceService, Depends()],
 ):
-    new_attendance = await service.create([attendance_post])
-    return new_attendance[0]
+    new_attendance_list = await service.create([attendance_post])
+    return new_attendance_list[0]
 
 
 @router.put("/{id}", response_model=AttendanceDTO)
@@ -49,8 +53,12 @@ async def replace_attendance(
     attendance_put: AttendancePut,
     service: Annotated[AttendanceService, Depends()],
 ):
-    replaced_attendance = await service.replace(attendance_put, id=id)
-    return replaced_attendance[0]
+    replaced_attendance_list = await service.replace(attendance_put, id=id)
+    if not replaced_attendance_list:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Attendance not found"
+        )
+    return replaced_attendance_list[0]
 
 
 @router.patch("/{id}", response_model=AttendanceDTO)
@@ -59,11 +67,19 @@ async def update_attendance(
     attendance_patch: AttendancePatch,
     service: Annotated[AttendanceService, Depends()],
 ):
-    updated_attendance = await service.update(attendance_patch, id=id)
-    return updated_attendance[0]
+    updated_attendance_list = await service.update(attendance_patch, id=id)
+    if not updated_attendance_list:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Attendance not found"
+        )
+    return updated_attendance_list[0]
 
 
 @router.delete("/{id}", response_model=AttendanceDTO)
 async def delete_attendance(id: int, service: Annotated[AttendanceService, Depends()]):
-    deleted_attendance = await service.delete(id=id)
-    return deleted_attendance[0]
+    deleted_attendance_list = await service.delete(id=id)
+    if not deleted_attendance_list:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Attendance not found"
+        )
+    return deleted_attendance_list[0]

@@ -1,13 +1,13 @@
 from typing import Annotated
 
-from fastapi import Depends
+from fastapi import Depends, HTTPException, status
 
 from app.core.routing import CustomAPIRouter
 from app.dto.meeting import (
-    MeetigPost,
     MeetingDTO,
     MeetingParams,
     MeetingPatch,
+    MeetingPost,
     MeetingPut,
 )
 from app.service.meeting import MeetingService
@@ -28,16 +28,20 @@ async def get_meeting_list(
 
 @router.get("/{id}", response_model=MeetingDTO)
 async def get_meeting_by_id(id: int, service: Annotated[MeetingService, Depends()]):
-    meeting = await service.get(id=id)
-    return meeting[0]
+    meeting_list = await service.get(id=id)
+    if not meeting_list:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Meeting not found"
+        )
+    return meeting_list[0]
 
 
 @router.post("", response_model=MeetingDTO)
 async def create_meeting(
-    meeting_post: MeetigPost, service: Annotated[MeetingService, Depends()]
+    meeting_post: MeetingPost, service: Annotated[MeetingService, Depends()]
 ):
-    new_meeting = await service.create([meeting_post])
-    return new_meeting[0]
+    new_meeting_list = await service.create([meeting_post])
+    return new_meeting_list[0]
 
 
 @router.put("/{id}", response_model=MeetingDTO)
@@ -46,8 +50,14 @@ async def replace_meeting(
     meeting_put: MeetingPut,
     service: Annotated[MeetingService, Depends()],
 ):
-    replaced_meeting = await service.update(meeting_put, exclude_unset=False, id=id)
-    return replaced_meeting[0]
+    replaced_meeting_list = await service.update(
+        meeting_put, exclude_unset=False, id=id
+    )
+    if not replaced_meeting_list:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Meeting not found"
+        )
+    return replaced_meeting_list[0]
 
 
 @router.patch("/{id}", response_model=MeetingDTO)
@@ -56,11 +66,19 @@ async def update_meeting(
     meeting_patch: MeetingPatch,
     service: Annotated[MeetingService, Depends()],
 ):
-    updated_meeting = await service.update(meeting_patch, id=id)
-    return updated_meeting[0]
+    updated_meeting_list = await service.update(meeting_patch, id=id)
+    if not updated_meeting_list:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Meeting not found"
+        )
+    return updated_meeting_list[0]
 
 
 @router.delete("/{id}", response_model=MeetingDTO)
 async def delete_meeting(id: int, service: Annotated[MeetingService, Depends()]):
-    deleted_meeting = await service.delete(id=id)
-    return deleted_meeting[0]
+    deleted_meeting_list = await service.delete(id=id)
+    if not deleted_meeting_list:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Meeting not found"
+        )
+    return deleted_meeting_list[0]

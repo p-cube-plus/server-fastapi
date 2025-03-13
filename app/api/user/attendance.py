@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Annotated
 
-from fastapi import Depends
+from fastapi import Depends, HTTPException, status
 
 from app.core.routing import CustomAPIRouter
 from app.dto.attendance import AttendanceParams, AttendancePost
@@ -39,7 +39,6 @@ async def get_user_attendance_records(
     service: Annotated[UserAttendanceService, Depends()],
 ):
     today = datetime.now().date()
-
     result = await service.get_user_attendance_list(user_id=user_id, date=today)
     return [
         UserAttendanceListDTO(user_attendance=user_attendance, attendance=attendance)
@@ -53,8 +52,14 @@ async def get_user_attendance_by_attendance_id(
     attendance_id: int,
     service: Annotated[UserAttendanceService, Depends()],
 ):
-    user_attendance = await service.get(user_id=user_id, attendance_id=attendance_id)
-    return user_attendance[0]
+    user_attendance_list = await service.get(
+        user_id=user_id, attendance_id=attendance_id
+    )
+    if not user_attendance_list:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User attendance not found"
+        )
+    return user_attendance_list[0]
 
 
 @router.post("", response_model=UserAttendanceDTO)
@@ -63,10 +68,10 @@ async def create_user_attendance(
     user_attendance_post: UserAttendancePost,
     service: Annotated[UserAttendanceService, Depends()],
 ):
-    new_user_attendance = await service.create(
+    new_user_attendance_list = await service.create(
         [UserAttendanceDTO(user_id=user_id, **user_attendance_post.dict())]
     )
-    return new_user_attendance[0]
+    return new_user_attendance_list[0]
 
 
 @router.put("/{attendance_id}", response_model=UserAttendanceDTO)
@@ -76,13 +81,17 @@ async def update_user_attendance(
     user_attendance_put: UserAttendancePut,
     service: Annotated[UserAttendanceService, Depends()],
 ):
-    updated_user_attendance = await service.update(
+    updated_user_attendance_list = await service.update(
         user_attendance_put,
         exclude_unset=False,
         user_id=user_id,
         attendance_id=attendance_id,
     )
-    return updated_user_attendance[0]
+    if not updated_user_attendance_list:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User attendance not found"
+        )
+    return updated_user_attendance_list[0]
 
 
 @router.patch("/{attendance_id}", response_model=UserAttendanceDTO)
@@ -92,10 +101,14 @@ async def patch_user_attendance(
     user_attendance_patch: UserAttendancePatch,
     service: Annotated[UserAttendanceService, Depends()],
 ):
-    patched_user_attendance = await service.update(
+    patched_user_attendance_list = await service.update(
         user_attendance_patch, user_id=user_id, attendance_id=attendance_id
     )
-    return patched_user_attendance[0]
+    if not patched_user_attendance_list:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User attendance not found"
+        )
+    return patched_user_attendance_list[0]
 
 
 @router.delete("/{attendance_id}", response_model=UserAttendanceDTO)
@@ -104,10 +117,14 @@ async def delete_user_attendance(
     attendance_id: int,
     service: Annotated[UserAttendanceService, Depends()],
 ):
-    deleted_user_attendance = await service.delete(
+    deleted_user_attendance_list = await service.delete(
         user_id=user_id, attendance_id=attendance_id
     )
-    return deleted_user_attendance[0]
+    if not deleted_user_attendance_list:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User attendance not found"
+        )
+    return deleted_user_attendance_list[0]
 
 
 @router.patch("/{attendance_id}/request", response_model=UserAttendanceDTO)
@@ -120,4 +137,8 @@ async def request_user_attendance(
     requested_user_attendance = await user_attendance_service.request_user_attendance(
         user_id=user_id, attendance_id=attendance_id, current_datetime=current_datetime
     )
+    if requested_user_attendance is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User attendance not found"
+        )
     return requested_user_attendance
