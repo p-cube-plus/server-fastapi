@@ -1,9 +1,11 @@
 import traceback
 from typing import Any, Callable, Coroutine, Type
 
-from fastapi import APIRouter, Request, Response
+from fastapi import APIRouter, Depends, Request, Response
 from fastapi.routing import APIRoute
 
+from app.constant.user import UserRole
+from app.core.security import JWTAuthenticator
 from app.dto.base import BaseDTO, QueryParamsDTO
 
 
@@ -48,3 +50,19 @@ class CustomAPIRoute(APIRoute):
 class CustomAPIRouter(APIRouter):
     def __init__(self, *args, route_class: Type[APIRoute] = CustomAPIRoute, **kwargs):
         super().__init__(*args, route_class=route_class, **kwargs)
+
+    def api_route(self, path: str, *args, **kwargs):
+        def decorator(func):
+            required_role = getattr(func, "required_role", UserRole.NONE)
+            if required_role != UserRole.NONE:
+                dependencies = kwargs.get("dependencies")
+                if dependencies is None:
+                    dependencies = []
+                dependencies.append(
+                    Depends(JWTAuthenticator(required_role=required_role))
+                )
+                kwargs["dependencies"] = dependencies
+            self.add_api_route(path, func, *args, **kwargs)
+            return func
+
+        return decorator

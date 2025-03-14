@@ -7,6 +7,7 @@ from fastapi import HTTPException, Request, Response, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from starlette.middleware.base import BaseHTTPMiddleware
 
+from app.constant.user import UserRole
 from app.core.config import get_settings
 
 _config = get_settings()["jwt"]
@@ -44,7 +45,7 @@ class JWTCodec:
             return JWTCodec._create_refresh_token(payload)
 
     @staticmethod
-    def decode(token: str) -> Optional[dict]:
+    def decode(token: str) -> dict:
         try:
             return jwt.decode(token, JWTCodec.secret_key, algorithms=["HS256"])
         except jwt.ExpiredSignatureError:
@@ -73,39 +74,43 @@ class JWT:
 
 
 class JWTAuthenticator(HTTPBearer):
-    def __init__(self, *, access_level: int, auto_error: bool = True):
+    def __init__(self, *, required_role: UserRole, auto_error: bool = True):
         super().__init__(auto_error=auto_error)
-        self.access_level = access_level
+        self.required_role = required_role
 
     async def __call__(self, request: Request):
         cred: HTTPAuthorizationCredentials = await super().__call__(request)
         payload: dict = JWTCodec.decode(cred.credentials)
+
+        user_role = UserRole(payload.get("role", UserRole.NONE))
+
+        if user_role < self.required_role:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Insufficient permission. Your role is {user_role.name} but {self.required_role.name} is required",
+            )
+
+        _jwt_context.set(payload)
         return JWT(payload)
 
 
-class JWTMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next) -> Response:
-        token = _jwt_context.set({})
-        try:
-            auth_header = request.headers.get("Authorization")
+def require_role(required_role: UserRole):
+    def decorator(func):
+        func.required_role = required_role
+        return func
 
-            if auth_header and auth_header.startswith("Bearer "):
-                token_str = auth_header.replace("Bearer ", "")
-                try:
-                    payload = JWTCodec.decode(token_str)
-                    _jwt_context.set(payload)
-                except Exception:
-                    pass
-            response = await call_next(request)
-            return response
-        finally:
-            _jwt_context.reset(token)
+    return decorator
 
 
-def get_jwt() -> dict:
-    return _jwt_context.get()
+def get_jwt() -> dict | None:
+    try:
+        return _jwt_context.get()
+    except LookupError:
+        return None
 
 
-def get_current_user() -> int:
+def get_current_user() -> int | None:
     jwt: dict = _jwt_context.get()
+    if jwt is None:
+        return None
     return jwt.get("user_id")

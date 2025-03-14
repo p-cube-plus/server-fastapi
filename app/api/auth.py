@@ -2,8 +2,9 @@ from typing import Annotated
 
 from fastapi import Depends, HTTPException, status
 
+from app.constant.user import UserRole
 from app.core.routing import CustomAPIRouter
-from app.core.security import JWT, JWTAuthenticator, JWTCodec
+from app.core.security import JWTCodec, get_jwt, require_role
 from app.dto.auth import (
     OTPSendPost,
     OTPSendResponse,
@@ -41,6 +42,7 @@ async def verify_otp(
 
     payload = {
         "user_id": 1,
+        "role": UserRole.USER,
     }
 
     access_token = JWTCodec.encode(payload, "access")
@@ -60,5 +62,14 @@ async def refresh_token(token_refresh_post: TokenRefreshPost):
 
 
 @router.get("/test")
-async def test(jwt: Annotated[JWT, Depends(JWTAuthenticator(access_level=1))]):
-    return {"jwt_payload": jwt.payload}
+@require_role(UserRole.USER)
+async def test():
+    jwt = get_jwt()
+    return {"jwt_payload": jwt}
+
+
+@router.get("/test_admin_api")
+@require_role(UserRole.ADMIN)
+async def test():
+    jwt = get_jwt()
+    return {"jwt_payload": jwt}
