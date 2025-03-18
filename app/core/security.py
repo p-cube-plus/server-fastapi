@@ -1,9 +1,9 @@
 from contextvars import ContextVar
 from datetime import datetime, timedelta
-from typing import Literal, Optional
+from typing import Annotated, Literal, Optional
 
 import jwt
-from fastapi import HTTPException, Request, Response, status
+from fastapi import Depends, HTTPException, Path, Request, Response, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from starlette.middleware.base import BaseHTTPMiddleware
 
@@ -68,30 +68,21 @@ class JWTCodec:
             )
 
 
-class JWT:
-    def __init__(self, payload: dict):
-        self.payload = payload
+class JWTMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next) -> Response:
+        token = _jwt_context.set({})
+        try:
+            auth_header = request.headers.get("Authorization")
 
+            if auth_header and auth_header.startswith("Bearer "):
+                token_str = auth_header.replace("Bearer ", "")
+                payload = JWTCodec.decode(token_str)
+                _jwt_context.set(payload)
 
-class JWTAuthenticator(HTTPBearer):
-    def __init__(self, *, required_role: UserRole, auto_error: bool = True):
-        super().__init__(auto_error=auto_error)
-        self.required_role = required_role
-
-    async def __call__(self, request: Request):
-        cred: HTTPAuthorizationCredentials = await super().__call__(request)
-        payload: dict = JWTCodec.decode(cred.credentials)
-
-        user_role = UserRole(payload.get("role", UserRole.NONE))
-
-        if user_role < self.required_role:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Insufficient permission. Your role is {user_role.name} but {self.required_role.name} is required",
-            )
-
-        _jwt_context.set(payload)
-        return JWT(payload)
+            response = await call_next(request)
+            return response
+        finally:
+            _jwt_context.reset(token)
 
 
 def require_role(required_role: UserRole):
@@ -110,7 +101,30 @@ def get_jwt() -> dict | None:
 
 
 def get_current_user() -> int | None:
-    jwt: dict = _jwt_context.get()
+    jwt: dict = get_jwt()
     if jwt is None:
         return None
     return jwt.get("user_id")
+
+
+class JWT:
+    def __init__(self, payload: dict):
+        self.payload = payload
+
+
+class JWTAuthenticator(HTTPBearer):
+    def __init__(self, *, required_role: UserRole, auto_error: bool = True):
+        super().__init__(auto_error=auto_error)
+        self.required_role = required_role
+
+    async def __call__(self):
+        jwt = get_jwt() or {}
+        user_role = UserRole(jwt.get("role", UserRole.NONE))
+
+        if user_role < self.required_role:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Insufficient permission. Your role is {user_role.name} but {self.required_role.name} is required",
+            )
+
+        return JWT(jwt)

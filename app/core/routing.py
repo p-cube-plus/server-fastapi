@@ -54,14 +54,11 @@ class CustomAPIRouter(APIRouter):
     def api_route(self, path: str, *args, **kwargs):
         def decorator(func):
             required_role = getattr(func, "required_role", UserRole.NONE)
-            if required_role != UserRole.NONE:
-                dependencies = kwargs.get("dependencies")
-                if dependencies is None:
-                    dependencies = []
-                dependencies.append(
-                    Depends(JWTAuthenticator(required_role=required_role))
-                )
-                kwargs["dependencies"] = dependencies
+            dependencies = kwargs.get("dependencies")
+            if dependencies is None:
+                dependencies = []
+            dependencies.append(Depends(JWTAuthenticator(required_role=required_role)))
+            kwargs["dependencies"] = dependencies
             self.add_api_route(path, func, *args, **kwargs)
             return func
 

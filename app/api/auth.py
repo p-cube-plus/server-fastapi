@@ -4,7 +4,7 @@ from fastapi import Depends, HTTPException, status
 
 from app.constant.user import UserRole
 from app.core.routing import CustomAPIRouter
-from app.core.security import JWTCodec, get_jwt, require_role
+from app.core.security import JWTCodec, get_current_user, get_jwt, require_role
 from app.dto.auth import (
     OTPSendPost,
     OTPSendResponse,
@@ -68,8 +68,15 @@ async def test():
     return {"jwt_payload": jwt}
 
 
-@router.get("/test_admin_api")
+@router.get("/test-admin-api")
 @require_role(UserRole.ADMIN)
-async def test():
+async def test_admin_api():
     jwt = get_jwt()
     return {"jwt_payload": jwt}
+
+
+@router.get("/test-whoami")
+@require_role(UserRole.USER)
+async def whoami():
+    user_id = get_current_user()
+    return {"user_id": user_id}

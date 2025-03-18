@@ -20,9 +20,9 @@ async def get_user_list(
     return user_list
 
 
-@router.get("/{id}", response_model=UserDTO)
-async def get_user_by_id(id: int | str, service: Annotated[UserService, Depends()]):
-    user_list = await service.get(id=id)
+@router.get("/{user_id}", response_model=UserDTO)
+async def get_user_by_user_id(user_id: int, service: Annotated[UserService, Depends()]):
+    user_list = await service.get(id=user_id)
     if not user_list:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
@@ -36,11 +36,11 @@ async def create_user(user_post: UserPost, service: Annotated[UserService, Depen
     return new_user_list[0]
 
 
-@router.put("/{id}", response_model=UserDTO)
+@router.put("/{user_id}", response_model=UserDTO)
 async def replace_user(
-    id: int | str, user_put: UserPut, service: Annotated[UserService, Depends()]
+    user_id: int, user_put: UserPut, service: Annotated[UserService, Depends()]
 ):
-    replaced_user_list = await service.update(user_put, exclude_unset=False, id=id)
+    replaced_user_list = await service.update(user_put, exclude_unset=False, id=user_id)
     if not replaced_user_list:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
@@ -48,11 +48,11 @@ async def replace_user(
     return replaced_user_list[0]
 
 
-@router.patch("/{id}", response_model=UserDTO)
+@router.patch("/{user_id}", response_model=UserDTO)
 async def update_user(
-    id: int | str, user_patch: UserPatch, service: Annotated[UserService, Depends()]
+    user_id: int, user_patch: UserPatch, service: Annotated[UserService, Depends()]
 ):
-    updated_user_list = await service.update(user_patch, id=id)
+    updated_user_list = await service.update(user_patch, id=user_id)
     if not updated_user_list:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
@@ -60,9 +60,9 @@ async def update_user(
     return updated_user_list[0]
 
 
-@router.delete("/{id}", response_model=UserDTO)
-async def delete_user(id: int | str, service: Annotated[UserService, Depends()]):
-    deleted_user_list = await service.delete(id=id)
+@router.delete("/{user_id}", response_model=UserDTO)
+async def delete_user(user_id: int, service: Annotated[UserService, Depends()]):
+    deleted_user_list = await service.delete(id=user_id)
     if not deleted_user_list:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
